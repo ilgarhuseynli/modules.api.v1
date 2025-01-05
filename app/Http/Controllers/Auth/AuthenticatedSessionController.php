@@ -9,9 +9,17 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActiveDevice;
 use Jenssegers\Agent\Agent;
+use App\Services\LocationService;
 
 class AuthenticatedSessionController extends Controller
 {
+    protected $locationService;
+
+    public function __construct(LocationService $locationService)
+    {
+        $this->locationService = $locationService;
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -74,8 +82,14 @@ class AuthenticatedSessionController extends Controller
 
     private function getLocation(string $ip): ?string
     {
-        // You can integrate with a geolocation service here
-        // For example: ipapi.co, MaxMind, etc.
+        $location = $this->locationService->getLocation($ip);
+        if ($location) {
+            return implode(', ', array_filter([
+                $location['city'],
+                $location['region'],
+                $location['country']
+            ]));
+        }
         return null;
     }
 }
