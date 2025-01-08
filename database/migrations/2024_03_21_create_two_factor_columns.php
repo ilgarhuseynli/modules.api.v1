@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('two_factor_enabled')->default(false);
             $table->string('two_factor_secret')->nullable();
-            $table->json('two_factor_recovery_codes')->nullable();
+            $table->text('two_factor_recovery_codes')->nullable();
             $table->timestamp('two_factor_verified_at')->nullable();
-            $table->json('two_factor_trusted_devices')->nullable();
+            $table->text('two_factor_trusted_devices')->nullable();
         });
     }
 
