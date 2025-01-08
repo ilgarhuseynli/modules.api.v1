@@ -2,13 +2,8 @@
 
 
 use Illuminate\Support\Facades\Route;
+ 
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-*/
-
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->name('api.')->group(function () {
     require __DIR__.'/v1/auth.php';
 });
