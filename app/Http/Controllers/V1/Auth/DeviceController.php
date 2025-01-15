@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\V1\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActiveDevice;
 use Illuminate\Http\Request;
-use Jenssegers\Agent\Agent;
 
 class DeviceController extends Controller
 {
@@ -61,4 +59,4 @@ class DeviceController extends Controller
             'message' => 'All other devices logged out successfully'
         ]);
     }
-} 
+}

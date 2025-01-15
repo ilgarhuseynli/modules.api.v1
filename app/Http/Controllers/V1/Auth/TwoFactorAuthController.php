@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\V1\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use PragmaRX\Google2FA\Google2FA;
 use Illuminate\Support\Str;
+use PragmaRX\Google2FA\Google2FA;
 
 class TwoFactorAuthController extends Controller
 {
     public function enable(Request $request)
     {
         $user = $request->user();
-        
+
         if ($user->two_factor_enabled) {
             return response()->json([
                 'message' => '2FA is already enabled'
@@ -21,7 +21,7 @@ class TwoFactorAuthController extends Controller
 
         $google2fa = new Google2FA();
         $secret = $google2fa->generateSecretKey();
-        
+
         $user->two_factor_secret = encrypt($secret);
         $user->two_factor_enabled = false;
         $user->save();
@@ -51,7 +51,7 @@ class TwoFactorAuthController extends Controller
 
         $user = $request->user();
         $google2fa = new Google2FA();
-        
+
         $valid = $google2fa->verifyKey(
             decrypt($user->two_factor_secret),
             $request->code
@@ -65,7 +65,7 @@ class TwoFactorAuthController extends Controller
             if ($request->remember_device) {
                 $deviceId = Str::random(40);
                 $user->addTrustedDevice($deviceId);
-                
+
                 return response()->json([
                     'message' => '2FA has been enabled',
                     'device_id' => $deviceId
@@ -104,7 +104,7 @@ class TwoFactorAuthController extends Controller
             if ($request->remember_device) {
                 $deviceId = Str::random(40);
                 $user->addTrustedDevice($deviceId);
-                
+
                 return response()->json([
                     'message' => 'Recovery code accepted',
                     'device_id' => $deviceId
@@ -127,7 +127,7 @@ class TwoFactorAuthController extends Controller
             if ($request->remember_device) {
                 $deviceId = Str::random(40);
                 $user->addTrustedDevice($deviceId);
-                
+
                 return response()->json([
                     'message' => 'Code verified successfully',
                     'device_id' => $deviceId
@@ -147,7 +147,7 @@ class TwoFactorAuthController extends Controller
     public function generateRecoveryCodes(Request $request)
     {
         $user = $request->user();
-        
+
         if (!$user->two_factor_enabled) {
             return response()->json([
                 'message' => '2FA is not enabled'
@@ -160,4 +160,4 @@ class TwoFactorAuthController extends Controller
             'recovery_codes' => $recoveryCodes
         ]);
     }
-} 
+}

@@ -1,13 +1,13 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\TwoFactorAuthController;
-use App\Http\Controllers\Auth\DeviceController;
-use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\V1\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\V1\Auth\DeviceController;
+use App\Http\Controllers\V1\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\V1\Auth\NewPasswordController;
+use App\Http\Controllers\V1\Auth\PasswordResetLinkController;
+use App\Http\Controllers\V1\Auth\RegisteredUserController;
+use App\Http\Controllers\V1\Auth\TwoFactorAuthController;
+use App\Http\Controllers\V1\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -27,8 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
     ->middleware(['throttle:6,1']);
- 
-    
+
+
     Route::post('/verify-email/{id}/{hash}', [VerifyEmailController::class, 'store'])
     ->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
     ->name('verification.verify');
@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::middleware(['throttle:2fa'])->group(function () {
-            
+
         Route::post('2fa/enable', [TwoFactorAuthController::class, 'enable']);
 
         Route::post('2fa/verify', [TwoFactorAuthController::class, 'verify']);
@@ -54,6 +54,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('devices', [DeviceController::class, 'index']);
     Route::post('devices/{device}/logout', [DeviceController::class, 'logout']);
-    Route::post('devices/logout-all', [DeviceController::class, 'logoutAll']); 
+    Route::post('devices/logout-all', [DeviceController::class, 'logoutAll']);
 
 });
