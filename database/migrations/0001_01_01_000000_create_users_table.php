@@ -13,8 +13,24 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
             $table->string('name');
+            $table->string('phone')->unique();
             $table->string('email')->unique();
+
+            $table->string('keyword'); // concat name phone email for search faster
+            $table->boolean('is_company')->default(false);
+            $table->boolean('send_notification')->default(true);
+            $table->tinyInteger('type');
+            $table->string('avatar')->nullable();
+
+            $table->tinyInteger('gender')->nullable();
+            $table->dateTime('birth_date')->nullable();
+
+            $table->json('address')->nullable(); // insert all address data. state zip
+            $table->json('phones')->nullable(); // insert all phones
+
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

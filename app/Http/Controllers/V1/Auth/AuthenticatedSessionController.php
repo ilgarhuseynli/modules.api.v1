@@ -5,17 +5,17 @@ namespace App\Http\Controllers\V1\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\ActiveDevice;
-use App\Services\LocationService;
+use App\Services\ActiveDeviceService;
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
 
 class AuthenticatedSessionController extends Controller
 {
-    protected $locationService;
+    protected $deviceService;
 
-    public function __construct(LocationService $locationService)
+    public function __construct(ActiveDeviceService $deviceService)
     {
-        $this->locationService = $locationService;
+        $this->deviceService = $deviceService;
     }
 
     /**
@@ -34,9 +34,9 @@ class AuthenticatedSessionController extends Controller
             'user_id' => $user->id,
             'token_id' => $token->accessToken->id,
             'device_name' => $agent->device(),
-            'device_type' => $this->getDeviceType($agent),
+            'device_type' => $this->deviceService->getDeviceType($agent),
             'ip_address' => $request->ip(),
-            'location' => $this->getLocation($request->ip()),
+            'location' => $this->deviceService->getLocation($request->ip()),
             'last_active_at' => now(),
         ]);
         $device->save();
@@ -66,28 +66,4 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    private function getDeviceType(Agent $agent): string
-    {
-        if ($agent->isDesktop()) {
-            return 'desktop';
-        } elseif ($agent->isTablet()) {
-            return 'tablet';
-        } elseif ($agent->isMobile()) {
-            return 'mobile';
-        }
-        return 'unknown';
-    }
-
-    private function getLocation(string $ip): ?string
-    {
-        $location = $this->locationService->getLocation($ip);
-        if ($location) {
-            return implode(', ', array_filter([
-                $location['city'],
-                $location['region'],
-                $location['country']
-            ]));
-        }
-        return null;
-    }
 }

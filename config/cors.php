@@ -15,7 +15,13 @@ return [
     |
     */
 
-    'paths' => ['*'],
+
+    //add .env file if localhost
+    //SESSION_DOMAIN=localhost
+    //SANCTUM_STATEFUL_DOMAINS=localhost
+
+    //defines which routes the CORS middleware should apply to.
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 

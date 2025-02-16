@@ -22,9 +22,22 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
+        'phone',
+        'keyword',
+        'is_company',
+        'send_notification',
+        'type', //user | customer
+        'avatar',
+        'gender',
+        'birth_date',
+        'address', //json obj
+        'phones', //json list
         'password'
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -48,6 +61,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'address' => 'array',
+            'phones' => 'array',
             'password' => 'hashed',
             'two_factor_enabled' => 'boolean',
             'two_factor_verified_at' => 'datetime',
