@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use App\Traits\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
+use App\Enums\UserGender;
+use App\Enums\UserType;
 
 class User extends Authenticatable
 {
@@ -66,6 +68,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_enabled' => 'boolean',
             'two_factor_verified_at' => 'datetime',
+            'type' => UserType::class,
+            'gender' => UserGender::class,
         ];
     }
 
