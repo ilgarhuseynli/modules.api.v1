@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('name');
-            $table->string('phone')->unique();
+            $table->string('phone')->nullable()->unique();
             $table->string('email')->unique();
 
             $table->string('keyword'); // concat name phone email for search faster

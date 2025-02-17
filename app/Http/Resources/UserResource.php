@@ -8,12 +8,15 @@ class UserResource extends JsonResource
 {
     public function toArray($request)
     {
+        $imageUrl = @asset('images/users/avatar-4.jpg');
+
         return [
             'id' => $this->id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'name' => $this->name,
             'address' => $this->address ?? false,
+            'image' => $imageUrl,
 //            'avatar' => File::getFileObject($this->avatar,'user'),
 //            'role' => Role::getById($this->role_id),
             'phone' => $this->phone,

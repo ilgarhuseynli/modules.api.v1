@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\V1\Auth;
 
+use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
@@ -11,7 +12,9 @@ use App\Services\ActiveDeviceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Jenssegers\Agent\Agent;
+use Illuminate\Validation\Rules;
 
 class AuthController extends Controller
 {
@@ -63,14 +66,23 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $name = $request->first_name.' '.$request->last_name;
+
+        $keyword = Str::slug($name).' '.$request->email;
+
         $user = User::create([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'name' => $name,
             'email' => $request->email,
+            'keyword' => $keyword,
+            'type' => UserType::CUSTOMER,
             'password' => Hash::make($request->string('password')),
         ]);
 
@@ -122,15 +134,16 @@ class AuthController extends Controller
         $user = Auth::user();
 
 //        $userPerms = $user->getPermissions();
-//
-//        $permissionsArray = [];
-//        foreach ($userPerms as $key => $val) {
-//            $permissionsArray[$key] = $val['allow'];
-//        }
+        $userPerms = [];
+
+        $permissionsArray = [];
+        foreach ($userPerms as $key => $val) {
+            $permissionsArray[$key] = $val['allow'];
+        }
 
         return response()->json([
             'account' => new UserResource($user),
-//            'permissions' => $permissionsArray,
+            'permissions' => $permissionsArray,
         ]);
     }
 
