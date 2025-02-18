@@ -3,19 +3,29 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Concerns\User\HasAttributes;
+use App\Concerns\User\HasQueryScopes;
+use App\Concerns\User\HasRelations;
+use App\Enums\AdminstrationLevel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\TwoFactorAuthenticatable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 use App\Enums\UserGender;
 use App\Enums\UserType;
 
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable,HasApiTokens;
+    use HasFactory,
+        Notifiable,
+        TwoFactorAuthenticatable,
+        HasApiTokens,
+        HasRelations,
+        HasQueryScopes,
+        HasAttributes;
 
     /**
      * The attributes that are mass assignable.
@@ -30,6 +40,7 @@ class User extends Authenticatable
         'phone',
         'keyword',
         'is_company',
+        'administrator_level',
         'send_notification',
         'type', //user | customer
         'avatar',
@@ -66,15 +77,31 @@ class User extends Authenticatable
             'address' => 'array',
             'phones' => 'array',
             'password' => 'hashed',
+            'is_company' => 'boolean',
+            'send_notification' => 'boolean',
             'two_factor_enabled' => 'boolean',
             'two_factor_verified_at' => 'datetime',
             'type' => UserType::class,
             'gender' => UserGender::class,
+            'administrator_level' => AdminstrationLevel::class,
         ];
     }
 
-    public function activeDevices(): HasMany
-    {
-        return $this->hasMany(ActiveDevice::class);
-    }
+
+    public static $sortable = [
+        "id",
+        'name',
+        "first_name",
+        "last_name",
+        "phone",
+        'email',
+        'created_at',
+    ];
+
+    protected array $defaultImageSizes = [
+        'medium' => [600, 600],
+        'small' => [300, 300],
+        'thumbnail' => [100, 100]
+    ];
+
 }

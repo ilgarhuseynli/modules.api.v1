@@ -9,3 +9,10 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return ['Laravel' => app()->version()];
 })->name('login');
+
+
+
+
+Route::get('/test', function () {
+    dd('test');
+});

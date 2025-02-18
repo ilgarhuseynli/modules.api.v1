@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\ActiveDevice;
 use App\Models\User;
 use App\Services\ActiveDeviceService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -63,7 +64,7 @@ class AuthController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function register(Request $request)
+    public function register(Request $request,UserService $userService)
     {
         $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
@@ -72,16 +73,11 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $name = $request->first_name.' '.$request->last_name;
-
-        $keyword = Str::slug($name).' '.$request->email;
 
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
-            'name' => $name,
             'email' => $request->email,
-            'keyword' => $keyword,
             'type' => UserType::CUSTOMER,
             'password' => Hash::make($request->string('password')),
         ]);

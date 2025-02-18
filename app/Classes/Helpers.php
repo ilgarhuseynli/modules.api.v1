@@ -4,26 +4,24 @@ namespace App\Classes;
 
 class Helpers
 {
-    public static function success($data = [],$description = 'Success',$title = 'Success'){
+
+    public static function success($data = [],$title = 'Success',$description = ''){
         return \response()->json([
             'status'=>'success',
             'data'=>$data,
             'title'=>$title,
-            'message'=>$description
+            'description'=>$description
         ]);
     }
 
-    public static function error($description = '',$errorCode = 422,$title = 'Error'){
+    public static function error($title = 'Error',$description = '',$errorCode = 422){
         return \response()->json([
             'status'=>'error',
             'title'=>$title,
+            'description'=>$description,
             'message'=>$description,
             'error_code'=>$errorCode,
         ],$errorCode);
-    }
-
-    public static function custom($data = []){
-        return \response()->json($data);
     }
 
 
@@ -52,4 +50,45 @@ class Helpers
         }
         return $number;
     }
+
+
+
+    public static function manageLimitRequest($limit, $min = 50, $max = 200)
+    {
+        $limit = (int)$limit;
+
+        if ($limit < 5) {
+            $limit = $min;
+        } else if ($limit > 200) {
+            $limit = $max;
+        }
+
+        return $limit;
+    }
+
+
+    public static function manageSortRequest($sortField, $sortType, $fields = false, $defaultParams = [])
+    {
+        $defaultSortField = @$defaultParams['sort_field'] ?: 'created_at';
+        $defaultSortType = @$defaultParams['sort_type'] ?: 'desc';
+        $sortType = $sortType ?: $defaultSortType;
+
+        $fields = is_array($fields) ? $fields : ['id', 'created_at', 'title'];
+
+        $sort_field = trim(strtolower($sortField));
+
+        if (@$fields[$sort_field]){
+            $sort_field = $fields[$sort_field];
+        }elseif(!in_array($sort_field, $fields)){
+            $sort_field = $defaultSortField;
+        }
+
+        $sortType = $sortType == 'asc' ? 'asc' : 'desc';
+
+        return [
+            'field' => $sort_field,
+            'direction' => $sortType
+        ];
+    }
+
 }

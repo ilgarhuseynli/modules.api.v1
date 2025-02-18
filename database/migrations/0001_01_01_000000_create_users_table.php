@@ -25,6 +25,7 @@ return new class extends Migration
             $table->tinyInteger('type');
             $table->string('avatar')->nullable();
 
+            $table->tinyInteger('administrator_level')->nullable();
             $table->tinyInteger('gender')->nullable();
             $table->dateTime('birth_date')->nullable();
 
