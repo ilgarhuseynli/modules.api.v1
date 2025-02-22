@@ -53,7 +53,7 @@ class UserFactory extends Factory
             'is_company' => fake()->boolean(),
             'send_notification' => fake()->boolean(),
             'type' => fake()->randomElement(UserType::getValues()),
-            'avatar' => fake()->imageUrl(200, 200, 'people'),
+            'avatar_id' => null,
             'gender' => fake()->randomElement(UserGender::getValues()),
             'birth_date' => fake()->dateTimeBetween(
                 now()->subYears(40),

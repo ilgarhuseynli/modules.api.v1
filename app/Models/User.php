@@ -43,7 +43,7 @@ class User extends Authenticatable
         'administrator_level',
         'send_notification',
         'type', //user | customer
-        'avatar',
+        'avatar_id',
         'gender',
         'birth_date',
         'address', //json obj

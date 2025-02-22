@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_company')->default(false);
             $table->boolean('send_notification')->default(true);
             $table->tinyInteger('type');
-            $table->string('avatar')->nullable();
+            $table->string('avatar_id')->nullable();
 
             $table->tinyInteger('administrator_level')->nullable();
             $table->tinyInteger('gender')->nullable();

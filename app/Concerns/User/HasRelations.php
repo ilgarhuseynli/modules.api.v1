@@ -2,7 +2,7 @@
 
 namespace App\Concerns\User;
 
-use App\File;
+use App\Models\File;
 use App\Models\ActiveDevice;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 

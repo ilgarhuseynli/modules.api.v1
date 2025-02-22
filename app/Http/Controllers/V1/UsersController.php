@@ -122,7 +122,9 @@ class UsersController extends Controller
             return response()->json(['message' => 'File not saved. Please try again.'],402);
         }
 
-        $user->update(['avatar' => $fileData['id']]);
+        if($request->type === 'avatar'){
+            $user->update(['avatar' => $fileData['id']]);
+        }
 
         return response()->json([
             'id' => $fileData['id'],
@@ -137,10 +139,10 @@ class UsersController extends Controller
             'file_id' => 'required|exists:files,id',
         ]);
 
-        $coverImage = $user->cover;
 
-        if ($user->avatar == $request->file_id){
-            $fileService->deleteFile($coverImage);
+        if ($user->avatar_id == $request->file_id){
+            $fileService->deleteFile($user->avatar);
+
         }else{
             $fileData = $user->files()->where('id',$request->file_id)->first();
 
