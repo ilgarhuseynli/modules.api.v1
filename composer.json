@@ -9,7 +9,8 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.4",
+        "php": "^8.3",
+        "intervention/image": "^3.11",
         "jenssegers/agent": "^2.6",
         "laravel/framework": "^11.31",
         "laravel/sanctum": "^4.0",

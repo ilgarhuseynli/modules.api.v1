@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name')->nullable();
+            $table->string('first_name');
             $table->string('last_name')->nullable();
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('phone')->nullable()->unique();
             $table->string('email')->unique();
 
-            $table->string('keyword'); // concat name phone email for search faster
+            $table->string('keyword')->nullable(); // concat name phone email for search faster
             $table->boolean('is_company')->default(false);
             $table->boolean('send_notification')->default(true);
             $table->tinyInteger('type');

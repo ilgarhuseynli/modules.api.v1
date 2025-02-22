@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Http\Controllers\V1;
+namespace App\Http\Controllers\V1;
 
 use App\Classes\Helpers;
 use App\Http\Controllers\Controller;
@@ -25,7 +25,7 @@ class UsersController extends Controller
 
     public function index(Request $request)
     {
-        Gate::authorize('user_view');
+        Gate::authorize('user_show');
 
         $limit = Helpers::manageLimitRequest($request->limit);
         $sort = Helpers::manageSortRequest($request->sort,$request->sort_type,User::$sortable);
@@ -51,18 +51,31 @@ class UsersController extends Controller
         return UserMinlistResource::collection($users);
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request,FileService $fileService)
     {
         $validUserFields = $request->validated();
 
+
+        //TODO
+        //when store phones pick the selected and store in phone field.
+        //pick address from addresses (marked default);
+
         $user = User::create($validUserFields);
+
+        if ($request->input('avatar')){
+            $fileService->storeTmpFile($user,$request->input('cover'),'avatar');
+        }
+
+        foreach ($request->input('files', []) as $file) {
+            $fileService->storeTmpFile($user,$file,'files');
+        }
 
         return response()->json(['id' => $user->id]);
     }
 
     public function show(User $user)
     {
-        Gate::authorize('user_view',$user);
+        Gate::authorize('user_show',$user);
 
         return response()->json(new UserResource($user));
     }

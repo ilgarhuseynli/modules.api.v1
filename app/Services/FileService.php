@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Classes\Helpers;
-use App\TempFile;
+use App\Models\TempFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Gif\Exceptions\NotReadableException;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class FileService
 {
@@ -185,7 +187,16 @@ class FileService
 
 
     //Move tmp file
-    public function storeTmpFile($parent,$tmpFileId,$type = false){
+
+    /**
+     * @param $parent
+     * @param $tmpFileId
+     * @param $type
+     * @return false|mixed
+     * @throws \Exception
+     */
+    public function storeTmpFile($parent,$tmpFileId,$type = false)
+    {
 
         $tmpFile = TempFile::where('id',$tmpFileId)->first();
 
@@ -311,18 +322,19 @@ class FileService
 
     public function resizeImage($savedObj, $width = 800, $height = 800)
     {
-        $img = Image::make($savedObj);
+        $imageManager = new ImageManager(new Driver());
 
-        if ($img->height() > $height || $img->width() > $width){
-            $img->resize($width, $height, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
+        try {
+            $img = $imageManager->read($savedObj);
+        } catch (NotReadableException $e) {
+            throw new \Exception("The image could not be processed: " . $e->getMessage());
         }
 
-        $imgStream = $img->stream();
+        if ($img->height() > $height || $img->width() > $width) {
+            $img = $img->scale(width: $width, height: $height);
+        }
 
-        return $imgStream->__toString();
+        return $img->encode();
     }
 
 
