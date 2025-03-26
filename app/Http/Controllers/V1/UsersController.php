@@ -30,8 +30,8 @@ class UsersController extends Controller
         $limit = Helpers::manageLimitRequest($request->limit);
         $sort = Helpers::manageSortRequest($request->sort,$request->sort_type,User::$sortable);
 
-        $users = User::query()
-            ->filter($request->only(['name', 'keyword', 'role'])) // Apply filters scope
+        $users = User::with('role')
+            ->filter($request->only(['name', 'keyword', 'role_id','type'])) // Apply filters scope
             ->orderBy($sort['field'], $sort['direction'])
             ->paginate($limit);
 

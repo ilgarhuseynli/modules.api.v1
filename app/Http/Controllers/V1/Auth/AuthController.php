@@ -129,12 +129,11 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-//        $userPerms = $user->getPermissions();
-        $userPerms = [];
+        $userPerms = $user->getPermissions();
 
         $permissionsArray = [];
         foreach ($userPerms as $key => $val) {
-            $permissionsArray[$key] = $val['allow'];
+            $permissionsArray[$val['title']] = $val['allow'];
         }
 
         return response()->json([

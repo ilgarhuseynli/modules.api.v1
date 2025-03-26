@@ -45,6 +45,7 @@ class User extends Authenticatable
         'administrator_level',
         'send_notification',
         'type', //user | customer
+        'role_id',
         'avatar_id',
         'gender',
         'birth_date',
