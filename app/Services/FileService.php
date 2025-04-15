@@ -32,7 +32,7 @@ class FileService
     ];
 
 
-    public function getResource($file)
+    public static function getResource($file)
     {
         if (!$file){
             return false;
@@ -46,7 +46,7 @@ class FileService
             'size' => $file->size,
             'created_at' => $file->created_at,
             'type' => $file->type ? : '',
-            'sizes' => $this->collectImageVariants($file),
+            'sizes' => self::collectImageVariants($file),
         ];
     }
 
@@ -314,7 +314,9 @@ class FileService
 
         } else {
             // Handle unsuccessful request
-            return Helpers::resError('cant find file');
+            return [
+                'error' => 'Something went wrong while uploading the file.',
+            ];
         }
     }
 

@@ -6,6 +6,7 @@ use App\Models\File;
 use App\Models\ActiveDevice;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\UserAddress;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 trait HasRelations
@@ -34,6 +35,11 @@ trait HasRelations
     {
         return $this->belongsToMany(Permission::class, 'user_permission')
             ->withPivot(['allow','all']);
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class,'user_id');
     }
 
 }

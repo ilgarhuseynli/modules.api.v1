@@ -20,10 +20,11 @@ class UserAddress extends Model
         'street',
         'unit',
         'state',
-        'zip',
+        'postal_code',
         'city',
+        'country',
         'note',
-        'is_billing_address',
+        'is_primary',
         'created_at',
         'updated_at',
     ];
@@ -39,11 +40,12 @@ class UserAddress extends Model
     {
         // Customize this format as needed
         return collect([
-            $this->street,
-            $this->unit,
+            $this->country,
             $this->city,
             $this->state,
-            $this->zip,
+            $this->street,
+            $this->unit,
+            $this->postal_code,
         ])->filter()->implode(', ');
     }
 

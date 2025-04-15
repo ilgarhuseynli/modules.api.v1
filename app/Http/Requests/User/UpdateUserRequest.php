@@ -28,7 +28,6 @@ class UpdateUserRequest extends FormRequest
 
         return [
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id .',id'],
-            'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone,' . $id .',id'],
 
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
@@ -39,8 +38,8 @@ class UpdateUserRequest extends FormRequest
             'avatar' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
-            'address' => ['nullable', 'array'],
-            'phones' => ['nullable', 'array'],
+            'address_list' => ['array'],
+            'phones' => ['array'],
         ];
     }
 

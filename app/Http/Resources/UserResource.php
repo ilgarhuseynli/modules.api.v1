@@ -7,18 +7,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    protected $fileService;
-
-    public function __construct($resource, FileService $fileService)
-    {
-        parent::__construct($resource);
-        $this->fileService = $fileService;
-    }
-
     public function toArray($request)
     {
         $imageUrl = asset('images/users/avatar-4.jpg');
-        $avatar = $this->fileService->getResource($this->avatar);
+        $avatar = FileService::getResource($this->avatar);
+
+        $formatedPhones = [];
+        foreach ($this->phones as $phone) {
+            $formatedPhones[] = [
+                'number' => $phone,
+                'is_primary' => $phone == $this->phone,
+            ];
+        }
 
         return [
             'id' => $this->id,
@@ -26,11 +26,13 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'keyword' => $this->keyword,
             'name' => $this->name,
-            'address' => $this->address ?? false,
+            'address_list' => $this->addresses ?? [],
             'image' => $imageUrl,
             'avatar' => $avatar,
+            'is_company' => $this->is_company,
             'role' => $this->role,
             'phone' => $this->phone,
+            'phones' => $formatedPhones,
             'email' => $this->email,
             'created_at' => strtotime($this->created_at),
         ];

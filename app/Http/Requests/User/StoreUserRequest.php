@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rules;
@@ -33,10 +32,10 @@ class StoreUserRequest extends FormRequest
     public function rules()
     {
         return [
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:20', 'unique:users,phone'],
+
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'is_company' => ['boolean'],
 //            'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
@@ -45,8 +44,17 @@ class StoreUserRequest extends FormRequest
             'avatar' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
-            'address' => ['nullable', 'array'],
-            'phones' => ['nullable', 'array'],
+            'address_list' => ['array'],
+
+            'phones' => ['array'],
+            'phones.*.number' => [
+                'string',
+                'max:20',
+            ],
+            'phones.*.is_primary' => [
+                'nullable',
+                'boolean',
+            ],
         ];
     }
 

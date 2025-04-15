@@ -13,12 +13,9 @@ class DeleteTmpFiles extends Command
     protected $signature = 'tmpfiles:clear';
     protected $description = "clear temporary files from the tmp_files table";
 
-    private FileService $fileService;
-
     public function __construct()
     {
         parent::__construct();
-        $this->fileService = new FileService();
     }
 
     public function handle(FileService $fileService)
@@ -35,10 +32,7 @@ class DeleteTmpFiles extends Command
         foreach ($files as $file){
 
             try {
-                //if contains tmp/uploads
-                $type = Str::contains($file->path, 'tmp/uploads') ? 'file' : 'folder';
-
-                $fileService->deleteFile($file,$type);
+                $fileService->deleteFile($file);
 
             }catch (\Exception $exception){
                 $this->info("Error while delete file:".$exception->getMessage());

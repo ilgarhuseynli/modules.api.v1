@@ -10,6 +10,7 @@ use App\Http\Resources\UserMinlistResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\FileService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -18,9 +19,12 @@ use Illuminate\Validation\Rules;
 class UsersController extends Controller
 {
 
+    private $userService;
+
     public function __construct()
     {
         Gate::authorize('user_access');
+        $this->userService = new UserService();
     }
 
     public function index(Request $request)
@@ -53,14 +57,14 @@ class UsersController extends Controller
 
     public function store(StoreUserRequest $request,FileService $fileService)
     {
-        $validUserFields = $request->validated();
 
-
-        //TODO
-        //when store phones pick the selected and store in phone field.
-        //pick address from addresses (marked default);
+        $validUserFields = $this->userService->filterValidData($request);
 
         $user = User::create($validUserFields);
+
+        foreach ($validUserFields['address_list'] as $address) {
+            $user->addresses()->create($address); // Add new addresses
+        }
 
         if ($request->input('avatar')){
             $fileService->storeTmpFile($user,$request->input('cover'),'avatar');
@@ -77,14 +81,24 @@ class UsersController extends Controller
     {
         Gate::authorize('user_show',$user);
 
+        $user->load('addresses');
+
         return response()->json(new UserResource($user));
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        $validUserFields = $request->validated();
+        $validUserFields = $this->userService->filterValidData($request);
 
         $user->update($validUserFields);
+
+        $user->addresses()->delete(); // Remove old addresses
+
+        foreach ($validUserFields['address_list'] as $address) {
+            if ($address['street']){
+                $user->addresses()->create($address); // Add new addresses
+            }
+        }
 
         return response()->json(['id' => $user->id]);
     }

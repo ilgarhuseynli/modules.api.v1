@@ -101,16 +101,16 @@ class User extends Authenticatable
         'created_at',
     ];
 
-    /**
-     * manage file sizes
-     *
-     * @var array|\int[][]
-     */
-    protected array $defaultImageSizes = [
-        'medium' => [600, 600],
-        'small' => [300, 300],
-        'thumbnail' => [100, 100]
-    ];
+
+
+    public function getImageSizes() : array
+    {
+        return [
+            'medium' => [600, 600],
+            'small' => [300, 300],
+            'thumbnail' => [100, 100]
+        ];
+    }
 
 
 }

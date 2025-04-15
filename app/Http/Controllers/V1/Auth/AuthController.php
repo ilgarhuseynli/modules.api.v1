@@ -125,7 +125,7 @@ class AuthController extends Controller
 
 
 
-    public function settings(Request $request) {
+    public function settings() {
 
         $user = Auth::user();
 

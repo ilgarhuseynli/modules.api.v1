@@ -33,7 +33,7 @@ trait HasAttributes
     {
         parent::boot();
 
-        static::saving(function ($user) {
+        static::saved(function ($user) {
             $user->name = implode(' ', array_filter([
                 $user->first_name,
                 $user->last_name
