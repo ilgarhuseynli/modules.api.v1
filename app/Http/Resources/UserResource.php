@@ -13,7 +13,7 @@ class UserResource extends JsonResource
         $avatar = FileService::getResource($this->avatar);
 
         $formatedPhones = [];
-        foreach ($this->phones as $phone) {
+        foreach ((array)$this->phones as $phone) {
             $formatedPhones[] = [
                 'number' => $phone,
                 'is_primary' => $phone == $this->phone,
