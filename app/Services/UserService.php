@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Classes\Helpers;
+use App\Models\UserAddress;
 use Illuminate\Http\Request;
 
 class UserService
@@ -63,6 +64,5 @@ class UserService
 
         return $validUserFields;
     }
-
 
 }

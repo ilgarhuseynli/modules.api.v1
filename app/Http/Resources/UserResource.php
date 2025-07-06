@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'keyword' => $this->keyword,
             'name' => $this->name,
+            'address' => $this->address ? : null,
             'address_list' => $this->addresses ?? [],
             'image' => $imageUrl,
             'avatar' => $avatar,

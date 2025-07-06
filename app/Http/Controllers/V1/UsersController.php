@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Classes\Helpers;
+use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
@@ -35,7 +36,8 @@ class UsersController extends Controller
         $sort = Helpers::manageSortRequest($request->sort,$request->sort_type,User::$sortable);
 
         $users = User::with('role')
-            ->filter($request->only(['name', 'keyword', 'role_id','type'])) // Apply filters scope
+//            ->where('type',UserType::EMPLOYEE)
+            ->filter($request->only(['name', 'keyword', 'role_id','type','phone'])) // Apply filters scope
             ->orderBy($sort['field'], $sort['direction'])
             ->paginate($limit);
 

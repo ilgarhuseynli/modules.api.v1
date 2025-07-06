@@ -39,7 +39,7 @@ class StoreUserRequest extends FormRequest
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'is_company' => ['boolean'],
 //            'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
-//            'send_notification' => ['boolean'],
+            'send_notification' => ['boolean'],
             'type' => ['required', 'in:' . implode(',', UserType::getValues())],
             'avatar' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
