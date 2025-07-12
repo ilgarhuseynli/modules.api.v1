@@ -69,11 +69,20 @@ class UsersController extends Controller
         }
 
         if ($request->input('avatar')){
-            $fileService->storeTmpFile($user,$request->input('cover'),'avatar');
+            try {
+                $fileData = $fileService->storeTmpFile($user,$request->input('avatar'),'avatar');
+                $user->update(['avatar_id' => $fileData['id']]);
+            }catch (\Exception $exception){
+                //skip
+            }
         }
 
         foreach ($request->input('files', []) as $file) {
-            $fileService->storeTmpFile($user,$file,'files');
+            try {
+                $fileService->storeTmpFile($user,$file,'files');
+            }catch (\Exception $exception){
+                //skip
+            }
         }
 
         return response()->json(['id' => $user->id]);
@@ -140,25 +149,22 @@ class UsersController extends Controller
 
         $request->validate([
             'type' => 'required|in:avatar,files',
-            'file' => 'required|image|max:5048',
+            'file_id' => 'required|numeric',
         ]);
 
-        $file = $request->file('file');
+        $tmpFileId = $request->input('file_id');
 
-        $fileData = $fileService->storeFile($user,$file,$request->type);
+        $fileData = $fileService->storeTmpFile($user,$tmpFileId,$request->type);
 
         if (!$fileData){
             return response()->json(['message' => 'File not saved. Please try again.'],402);
         }
 
         if($request->type === 'avatar'){
-            $user->update(['avatar' => $fileData['id']]);
+            $user->update(['avatar_id' => $fileData['id']]);
         }
 
-        return response()->json([
-            'id' => $fileData['id'],
-            'url' => $fileData['url'],
-        ]);
+        return response()->json($fileData);
     }
 
     public function filedelete(Request $request,User $user,FileService $fileService){

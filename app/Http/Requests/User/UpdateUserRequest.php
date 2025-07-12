@@ -35,7 +35,7 @@ class UpdateUserRequest extends FormRequest
             'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
             'send_notification' => ['boolean'],
 //            'type' => ['required', 'in:' . implode(',', UserType::getValues())],
-            'avatar' => ['nullable', 'string', 'max:255'],
+//            'avatar' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
             'address_list' => ['array'],

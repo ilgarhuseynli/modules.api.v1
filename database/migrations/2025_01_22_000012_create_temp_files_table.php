@@ -9,12 +9,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('temp_files', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->id();
             $table->string('url');
             $table->string('path');
             $table->string('name');
             $table->string('mime_type')->nullable();
             $table->bigInteger('size');
+            $table->json('sizes')->nullable();
             $table->timestamps();
         });
     }

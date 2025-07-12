@@ -19,6 +19,8 @@ class FileService
         'thumbnail' => [100, 100]
     ];
 
+    protected string $disk = 'public';
+
     // Define allowed image types
     protected array $allowedImageTypes = [
         'image/jpg',    // JPEG
@@ -51,7 +53,7 @@ class FileService
     }
 
 
-    public function collectImageVariants($fileObj)
+    public static function collectImageVariants($fileObj)
     {
         if (!$fileObj->sizes || count($fileObj->sizes) == 0) {
             return false;
@@ -103,8 +105,8 @@ class FileService
         $originalContent = $this->resizeImage($file, '1200', '1200');
 //        $originalContent = file_get_contents($file);
 
-        Storage::disk('s3')->put($originalPath, $originalContent, 'public');
-        $originalFileUrl = Storage::disk('s3')->url($originalPath);
+        Storage::disk($this->disk)->put($originalPath, $originalContent, 'public');
+        $originalFileUrl = Storage::disk($this->disk)->url($originalPath);
 
         // Store resized versions inside "conversions" subfolder
         foreach ($imageSizes as $size => [$width, $height]) {
@@ -114,7 +116,7 @@ class FileService
             $currFilePath = $this->uploadPathNew($currFileName,$parent,$folderId);
 
             $sizeContent = $this->resizeImage($file, $width, $height);
-            Storage::disk('s3')->put($currFilePath, $sizeContent, 'public');
+            Storage::disk($this->disk)->put($currFilePath, $sizeContent, 'public');
         }
 
         $folderPath = $this->uploadPathNew('',$parent,$folderId);
@@ -137,8 +139,8 @@ class FileService
 
         $newPath = $this->uploadPathNew($fileName,$parent,$folderId);
         $fileContent = file_get_contents($file);
-        Storage::disk('s3')->put($newPath, $fileContent, 'public');
-        $fileUrl = Storage::disk('s3')->url($newPath);
+        Storage::disk($this->disk)->put($newPath, $fileContent, 'public');
+        $fileUrl = Storage::disk($this->disk)->url($newPath);
 
         $folderPath = $this->uploadPathNew('',$parent,$folderId);
 
@@ -198,10 +200,10 @@ class FileService
     public function storeTmpFile($parent,$tmpFileId,$type = false)
     {
 
-        $tmpFile = TempFile::where('id',$tmpFileId)->first();
+        $tmpFile = TempFile::where('id',(int)$tmpFileId)->first();
 
         if (!$tmpFile){
-            return false;
+            throw new \Exception('Temp file not found');
         }
 
         // Determine the relation name dynamically
@@ -255,6 +257,7 @@ class FileService
             'url' => $uploadRes['url'],
             'size' => $file->getSize(),
             'mime_type' => $mimeType,
+            'sizes' => @$uploadRes['sizes'] ?? null,
         ]);
 
         return $tmpFile;
@@ -298,9 +301,9 @@ class FileService
             }
 
 
-            Storage::disk('s3')->put($newPath,$fileContent, 'public');
+            Storage::disk($this->disk)->put($newPath,$fileContent, 'public');
 
-            $fileUrl = Storage::disk('s3')->url($newPath);
+            $fileUrl = Storage::disk($this->disk)->url($newPath);
 
             $fileData = $parent->files()->create([
                 'name' => $fileName,
@@ -379,9 +382,9 @@ class FileService
     {
         // Check if it's a file or folder and delete accordingly
         if ($type == 'folder') {
-            $deleteRes = Storage::disk('s3')->deleteDirectory($file->path);  // For a folder
+            $deleteRes = Storage::disk($this->disk)->deleteDirectory($file->path);  // For a folder
         }else{
-            $deleteRes = Storage::disk('s3')->delete($file->path);
+            $deleteRes = Storage::disk($this->disk)->delete($file->path);
         }
 
         if (!$deleteRes){

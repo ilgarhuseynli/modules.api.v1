@@ -13,11 +13,16 @@ class TempFile extends Model
         'updated_at',
     ];
 
+    protected $casts = [
+        'sizes' => 'array'
+    ];
+
     protected $fillable = [
         'name',
         'path',
         'url',
         'size',
+        'sizes',
         'mime_type',
         'created_at',
         'updated_at',

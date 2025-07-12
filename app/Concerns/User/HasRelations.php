@@ -19,6 +19,7 @@ trait HasRelations
     public function avatar(){
         return $this->morphOne(File::class,'model')
             ->where('type', 'avatar')
+            ->where('id', $this->avatar_id)
             ->latest();
     }
 

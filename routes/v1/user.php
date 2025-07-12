@@ -10,7 +10,7 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.gates']], function () {
         Route::post('minlist', [UsersController::class,'minlist']);
         Route::post('{user}/fileupload', [UsersController::class,'fileupload']);
         Route::post('{user}/filedelete', [UsersController::class,'filedelete']);
-        Route::post('{user}/update-password', [UsersController::class,'updatePassword']);
+        Route::put('{user}/update-password', [UsersController::class,'updatePassword']);
     });
 
     Route::apiResource('users', UsersController::class);
