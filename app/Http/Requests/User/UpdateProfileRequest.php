@@ -2,60 +2,41 @@
 
 namespace App\Http\Requests\User;
 
-use App\Models\User;
+use App\Enums\AdminstrationLevel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use App\Enums\UserGender;
+use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rules;
-use App\Enums\UserType;
-use App\Enums\UserGender;
-use App\Enums\AdminstrationLevel;
 
-
-class StoreUserRequest extends FormRequest
+class UpdateProfileRequest extends FormRequest
 {
     public function authorize()
     {
-        Gate::authorize('user_create',[User::class, request()->input('administrator_level')]);
+//        if (!Gate::allows('user_edit', $user)) {
+//            return false;
+//        }
 
         return true;
     }
 
-    /**
-     * Indicates if the validator should stop on the first rule failure.
-     *
-     * @var bool
-     */
-    protected $stopOnFirstFailure = true;
-
-
     public function rules()
     {
+        $id = Auth::id();
+
         return [
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id .',id'],
+
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
-
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'is_company' => ['boolean'],
-            'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
-            'send_notification' => ['boolean'],
-            'type' => ['required', 'in:' . implode(',', UserType::getValues())],
-            'avatar' => ['nullable',],
             'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
-            'address_list' => ['array'],
-
-            'phones' => ['array'],
-            'phones.*.number' => [
-                'string',
-                'max:20',
-            ],
-            'phones.*.is_primary' => [
-                'nullable',
-                'boolean',
-            ],
+//            'address_list' => ['array'],
+//            'phones' => ['array'],
         ];
     }
+
 
 
     /**
@@ -89,5 +70,4 @@ class StoreUserRequest extends FormRequest
             'administrator_level.in' => 'The admin level must be one of: ' . implode(', ', AdminstrationLevel::getValues()),
         ];
     }
-
 }

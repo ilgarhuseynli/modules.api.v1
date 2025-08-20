@@ -3,7 +3,6 @@
 namespace App\Http\Requests\User;
 
 use App\Enums\AdminstrationLevel;
-use Illuminate\Validation\Rule;
 use App\Enums\UserGender;
 use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
@@ -15,9 +14,7 @@ class UpdateUserRequest extends FormRequest
     {
         $user = $this->route('user');
 
-        if (!Gate::allows('user_edit', $user)) {
-            return false;
-        }
+        Gate::authorize('user_edit', $user);
 
         return true;
     }
@@ -34,8 +31,6 @@ class UpdateUserRequest extends FormRequest
             'is_company' => ['boolean'],
             'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
             'send_notification' => ['boolean'],
-//            'type' => ['required', 'in:' . implode(',', UserType::getValues())],
-//            'avatar' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
             'address_list' => ['array'],

@@ -91,4 +91,37 @@ class Helpers
         ];
     }
 
+
+
+    public static function filterUsPhone(string $phone):string
+    {
+        $phone = preg_replace("/[^0-9]/", '', $phone);
+
+        if (strlen($phone) == 10){
+            if (substr($phone,0,1) != 0){
+                $phone = '1'.$phone; // add us number prefix
+            }
+        }
+
+        return $phone;
+    }
+
+    public static function validateUsPhone($phone,$deletePrefix = false): bool|string
+    {
+        $phone = self::filterUsPhone($phone);
+
+        if (strlen($phone) != 11){
+            return false;
+        }
+        if (substr($phone,0,1) != 1){
+            return false;
+        }
+        if ($deletePrefix){
+            $phone = preg_replace("/^1/", '',$phone);
+        }
+
+        return $phone;
+    }
+
+
 }

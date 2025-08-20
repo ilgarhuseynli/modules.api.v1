@@ -2,60 +2,59 @@
 
 namespace App\Http\Requests\User;
 
+use App\Enums\AdminstrationLevel;
+use App\Enums\UserGender;
+use App\Enums\UserType;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rules;
-use App\Enums\UserType;
-use App\Enums\UserGender;
-use App\Enums\AdminstrationLevel;
 
-
-class StoreUserRequest extends FormRequest
+class UpdateCustomerRequest extends FormRequest
 {
     public function authorize()
     {
-        Gate::authorize('user_create',[User::class, request()->input('administrator_level')]);
+        $user = $this->route('user');
+
+        Gate::authorize('customer_edit', $user);
 
         return true;
     }
 
-    /**
-     * Indicates if the validator should stop on the first rule failure.
-     *
-     * @var bool
-     */
-    protected $stopOnFirstFailure = true;
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
 
+            $email = $this->input('email','');
+            if ($email){
+                $existUser = User::where('email', $email)
+                    ->where('type',UserType::CUSTOMER)
+                    ->first();
+
+                if ($existUser) {
+                    $validator->errors()->add('phone', 'Email already exists.');
+                }
+            }
+        });
+    }
 
     public function rules()
     {
+        $id = request()->route('user')->id ?? request()->route('user');
+
         return [
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id .',id'],
+
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
-
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'is_company' => ['boolean'],
-            'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
             'send_notification' => ['boolean'],
-            'type' => ['required', 'in:' . implode(',', UserType::getValues())],
-            'avatar' => ['nullable',],
             'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
             'address_list' => ['array'],
-
             'phones' => ['array'],
-            'phones.*.number' => [
-                'string',
-                'max:20',
-            ],
-            'phones.*.is_primary' => [
-                'nullable',
-                'boolean',
-            ],
         ];
     }
+
 
 
     /**
@@ -84,10 +83,8 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.in' => 'The user type must be one of: ' . implode(', ', UserType::getValues()),
             'gender.in' => 'The gender must be one of: ' . implode(', ', UserGender::getValues()),
             'administrator_level.in' => 'The admin level must be one of: ' . implode(', ', AdminstrationLevel::getValues()),
         ];
     }
-
 }

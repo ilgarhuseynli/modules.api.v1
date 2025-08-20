@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Resources;
+
+use App\Services\FileService;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class CustomerResource extends JsonResource
+{
+    public function toArray($request)
+    {
+        $avatar = FileService::getResource($this->avatar);
+
+        $formatedPhones = [];
+        foreach ((array)$this->phones as $phone) {
+            $formatedPhones[] = [
+                'number' => $phone,
+                'is_primary' => $phone == $this->phone,
+            ];
+        }
+
+        return [
+            'id' => $this->id,
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'keyword' => $this->keyword,
+            'name' => $this->name,
+            'address' => $this->address ? : null,
+            'address_list' => $this->addresses ?? [],
+            'image' => $avatar['url'] ?? '',
+            'avatar' => $avatar,
+            'is_company' => $this->is_company,
+            'phone' => $this->phone,
+            'phones' => $formatedPhones,
+            'email' => $this->email,
+            'created_at' => strtotime($this->created_at),
+        ];
+    }
+
+}

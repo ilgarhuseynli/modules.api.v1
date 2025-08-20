@@ -10,13 +10,17 @@ class PermissionsTableSeeder extends Seeder
     public function run()
     {
         $permssions = [
-            "user_management_access",
-
             "user_create",
             "user_edit",
             "user_show",
             "user_delete",
             "user_access",
+
+            "customer_create",
+            "customer_edit",
+            "customer_show",
+            "customer_delete",
+            "customer_access",
 
             "role_create",
             "role_edit",

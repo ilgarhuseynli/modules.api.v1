@@ -5,43 +5,35 @@ namespace App\Http\Controllers\V1;
 use App\Classes\Helpers;
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\StoreUserRequest;
-use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\StoreCustomerRequest;
+use App\Http\Requests\User\UpdateCustomerRequest;
 use App\Http\Resources\UserMinlistResource;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\CustomerResource;
 use App\Models\User;
+use App\Services\CustomerService;
 use App\Services\FileService;
-use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
-class UsersController extends Controller
+class CustomersController extends Controller
 {
-
-    private $userService;
-
-    public function __construct()
-    {
-        Gate::authorize('user_access');
-        $this->userService = new UserService();
-    }
 
     public function index(Request $request)
     {
-        Gate::authorize('user_show');
+        Gate::authorize('customer_show');
 
         $limit = Helpers::manageLimitRequest($request->limit);
         $sort = Helpers::manageSortRequest($request->sort,$request->sort_type,User::$sortable);
 
         $users = User::with('role')
-            ->where('type',UserType::EMPLOYEE)
+            ->where('type',UserType::CUSTOMER)
             ->filter($request->only(['name', 'keyword', 'role_id','type','phone'])) // Apply filters scope
             ->orderBy($sort['field'], $sort['direction'])
             ->paginate($limit);
 
-        return UserResource::collection($users);
+        return CustomerResource::collection($users);
     }
 
     public function minlist(Request $request)
@@ -58,10 +50,10 @@ class UsersController extends Controller
         return UserMinlistResource::collection($users);
     }
 
-    public function store(StoreUserRequest $request,FileService $fileService)
+    public function store(StoreCustomerRequest $request,FileService $fileService,CustomerService $customerService)
     {
 
-        $validUserFields = $this->userService->filterValidData($request);
+        $validUserFields = $customerService->filterValidData($request);
 
         $user = User::create($validUserFields);
 
@@ -91,16 +83,16 @@ class UsersController extends Controller
 
     public function show(User $user)
     {
-        Gate::authorize('user_show',$user);
+        Gate::authorize('customer_show',$user);
 
         $user->load('addresses');
 
-        return response()->json(new UserResource($user));
+        return response()->json(new CustomerResource($user));
     }
 
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateCustomerRequest $request, User $user,CustomerService $customerService)
     {
-        $validUserFields = $this->userService->filterValidData($request);
+        $validUserFields = $customerService->filterValidData($request);
 
         $user->update($validUserFields);
 
@@ -117,7 +109,7 @@ class UsersController extends Controller
 
     public function updatePassword(Request $request,User $user)
     {
-        Gate::authorize('user_edit',$user);
+        Gate::authorize('customer_edit',$user);
 
         $validated = $request->validate([
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -132,7 +124,7 @@ class UsersController extends Controller
 
     public function destroy(User $user)
     {
-        Gate::authorize('user_delete',$user);
+        Gate::authorize('customer_delete',$user);
 
         if ($user->avatar){
             //delete avatar from storage
@@ -146,7 +138,7 @@ class UsersController extends Controller
 
     public function fileupload(Request $request,User $user,FileService $fileService){
 
-        Gate::authorize('user_edit',$user);
+        Gate::authorize('customer_edit',$user);
 
         $request->validate([
             'type' => 'required|in:avatar,files',
@@ -169,7 +161,7 @@ class UsersController extends Controller
     }
 
     public function filedelete(Request $request,User $user,FileService $fileService){
-        Gate::authorize('user_edit',$user);
+        Gate::authorize('customer_edit',$user);
 
         $request->validate([
             'file_id' => 'required|exists:files,id',
