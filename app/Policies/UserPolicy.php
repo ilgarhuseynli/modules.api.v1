@@ -2,9 +2,11 @@
 
 namespace App\Policies;
 
+use App\Enums\AdminstrationLevel;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserPolicy
 {
@@ -17,7 +19,14 @@ class UserPolicy
         }
     }
 
-    protected function hasAdministrationAccess(User $user, $level): bool
+    /**
+     * check if updated user has higher level than updater
+     *
+     * @param User $user
+     * @param AdminstrationLevel $level
+     * @return bool
+     */
+    protected function hasAdministrationAccess(User $user,AdminstrationLevel $level = null ): bool
     {
         $authUser = Auth::user();
         if ($level){
@@ -40,17 +49,29 @@ class UserPolicy
 
     public function user_edit(User $user,User $targetUser)
     {
-        return $this->hasAdministrationAccess($user, $targetUser->role_id);
+        return $this->hasAdministrationAccess($user, $targetUser->administrator_level);
     }
 
     public function user_delete(User $user,User $targetUser)
     {
-        return $this->hasAdministrationAccess($user,  $targetUser->role_id);
+        return $this->hasAdministrationAccess($user,  $targetUser->administrator_level);
     }
 
-    public function user_show($user,User $targetUser)
+    public function user_show(User $user,User $targetUser)
     {
-        return $this->hasAdministrationAccess($user,$targetUser->role_id);
+        return $this->hasAdministrationAccess($user,$targetUser->administrator_level);
+    }
+
+    public function user_permission_edit(User $user,User $targetUser)
+    {
+        //Only super admin can change self permission.
+        if ($targetUser->id == $user->id){
+            if ($user->administrator_level != AdminstrationLevel::SUPER_ADMIN) {
+                return false;
+            }
+        }
+
+        return $this->hasAdministrationAccess($user,$targetUser->administrator_level);
     }
 
 }

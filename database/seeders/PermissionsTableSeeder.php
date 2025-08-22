@@ -15,6 +15,7 @@ class PermissionsTableSeeder extends Seeder
             "user_show",
             "user_delete",
             "user_access",
+            "user_permission_edit",
 
             "customer_create",
             "customer_edit",
