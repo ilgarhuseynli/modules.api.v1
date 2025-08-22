@@ -14,6 +14,7 @@ class MediaController extends Controller
 
     private array $validClasses = [
         'user' => User::class,
+        'customer' => User::class,
 //        'order' => Order::class // Add actual class if exists
     ];
 

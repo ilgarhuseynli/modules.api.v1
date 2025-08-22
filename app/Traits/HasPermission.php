@@ -99,6 +99,10 @@ trait HasPermission
 
     public function getAssignedPermissions()
     {
+        if (!$this->role_id){
+            return [];
+        }
+
         $rolePermissions = $this->role->permissions()->pluck('title', 'id');
 
         $userPermissions = $this->permissions()->withPivot(['allow', 'all'])->get();

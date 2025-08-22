@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Customer;
 
 use App\Enums\AdminstrationLevel;
 use App\Enums\UserGender;
@@ -24,14 +24,18 @@ class UpdateCustomerRequest extends FormRequest
     {
         $validator->after(function ($validator) {
 
-            $email = $this->input('email','');
+            $userId = request()->route('customer')->id ?? request()->route('customer');
+
+            $email = $this->input('email', '');
+
             if ($email){
                 $existUser = User::where('email', $email)
                     ->where('type',UserType::CUSTOMER)
+                    ->where('id','!=',$userId)
                     ->first();
 
                 if ($existUser) {
-                    $validator->errors()->add('phone', 'Email already exists.');
+                    $validator->errors()->add('phone', 'Email already exists. - '. $userId);
                 }
             }
         });
@@ -39,10 +43,9 @@ class UpdateCustomerRequest extends FormRequest
 
     public function rules()
     {
-        $id = request()->route('user')->id ?? request()->route('user');
 
         return [
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id .',id'],
+            'email' => ['required', 'string', 'email', 'max:255'],
 
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],

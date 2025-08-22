@@ -5,8 +5,8 @@ namespace App\Http\Controllers\V1;
 use App\Classes\Helpers;
 use App\Enums\UserType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\StoreCustomerRequest;
-use App\Http\Requests\User\UpdateCustomerRequest;
+use App\Http\Requests\Customer\StoreCustomerRequest;
+use App\Http\Requests\Customer\UpdateCustomerRequest;
 use App\Http\Resources\UserMinlistResource;
 use App\Http\Resources\CustomerResource;
 use App\Models\User;
@@ -55,16 +55,16 @@ class CustomersController extends Controller
 
         $validUserFields = $customerService->filterValidData($request);
 
-        $user = User::create($validUserFields);
+        $customer = User::create($validUserFields);
 
         foreach ($validUserFields['address_list'] as $address) {
-            $user->addresses()->create($address); // Add new addresses
+            $customer->addresses()->create($address); // Add new addresses
         }
 
         if ($request->input('avatar')){
             try {
-                $fileData = $fileService->storeTmpFile($user,$request->input('avatar'),'avatar');
-                $user->update(['avatar_id' => $fileData['id']]);
+                $fileData = $fileService->storeTmpFile($customer,$request->input('avatar'),'avatar');
+                $customer->update(['avatar_id' => $fileData['id']]);
             }catch (\Exception $exception){
                 //skip
             }
@@ -72,73 +72,73 @@ class CustomersController extends Controller
 
         foreach ($request->input('files', []) as $file) {
             try {
-                $fileService->storeTmpFile($user,$file,'files');
+                $fileService->storeTmpFile($customer,$file,'files');
             }catch (\Exception $exception){
                 //skip
             }
         }
 
-        return response()->json(['id' => $user->id]);
+        return response()->json(['id' => $customer->id]);
     }
 
-    public function show(User $user)
+    public function show(User $customer)
     {
-        Gate::authorize('customer_show',$user);
+        Gate::authorize('customer_show',$customer);
 
-        $user->load('addresses');
+        $customer->load('addresses');
 
-        return response()->json(new CustomerResource($user));
+        return response()->json(new CustomerResource($customer));
     }
 
-    public function update(UpdateCustomerRequest $request, User $user,CustomerService $customerService)
+    public function update(UpdateCustomerRequest $request, User $customer,CustomerService $customerService)
     {
         $validUserFields = $customerService->filterValidData($request);
 
-        $user->update($validUserFields);
+        $customer->update($validUserFields);
 
-        $user->addresses()->delete(); // Remove old addresses
+        $customer->addresses()->delete(); // Remove old addresses
 
         foreach ($validUserFields['address_list'] as $address) {
             if ($address['street']){
-                $user->addresses()->create($address); // Add new addresses
+                $customer->addresses()->create($address); // Add new addresses
             }
         }
 
-        return response()->json(['id' => $user->id]);
+        return response()->json(['id' => $customer->id]);
     }
 
-    public function updatePassword(Request $request,User $user)
+    public function updatePassword(Request $request,User $customer)
     {
-        Gate::authorize('customer_edit',$user);
+        Gate::authorize('customer_edit',$customer);
 
         $validated = $request->validate([
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user->update([
+        $customer->update([
             'password' => Hash::make($validated['password']),
         ]);
 
-        return response()->json(['id' => $user->id]);
+        return response()->json(['id' => $customer->id]);
     }
 
-    public function destroy(User $user)
+    public function destroy(User $customer)
     {
-        Gate::authorize('customer_delete',$user);
+        Gate::authorize('customer_delete',$customer);
 
-        if ($user->avatar){
+        if ($customer->avatar){
             //delete avatar from storage
         }
 
-        $user->delete();
+        $customer->delete();
 
         return response()->noContent();
     }
 
 
-    public function fileupload(Request $request,User $user,FileService $fileService){
+    public function fileupload(Request $request,User $customer,FileService $fileService){
 
-        Gate::authorize('customer_edit',$user);
+        Gate::authorize('customer_edit',$customer);
 
         $request->validate([
             'type' => 'required|in:avatar,files',
@@ -147,32 +147,32 @@ class CustomersController extends Controller
 
         $tmpFileId = $request->input('file_id');
 
-        $fileData = $fileService->storeTmpFile($user,$tmpFileId,$request->type);
+        $fileData = $fileService->storeTmpFile($customer,$tmpFileId,$request->type);
 
         if (!$fileData){
             return response()->json(['message' => 'File not saved. Please try again.'],402);
         }
 
         if($request->type === 'avatar'){
-            $user->update(['avatar_id' => $fileData['id']]);
+            $customer->update(['avatar_id' => $fileData['id']]);
         }
 
         return response()->json($fileData);
     }
 
-    public function filedelete(Request $request,User $user,FileService $fileService){
-        Gate::authorize('customer_edit',$user);
+    public function filedelete(Request $request,User $customer,FileService $fileService){
+        Gate::authorize('customer_edit',$customer);
 
         $request->validate([
             'file_id' => 'required|exists:files,id',
         ]);
 
 
-        if ($user->avatar_id == $request->file_id){
-            $fileService->deleteFile($user->avatar);
+        if ($customer->avatar_id == $request->file_id){
+            $fileService->deleteFile($customer->avatar);
 
         }else{
-            $fileData = $user->files()->where('id',$request->file_id)->first();
+            $fileData = $customer->files()->where('id',$request->file_id)->first();
 
             $fileService->deleteFile($fileData);
         }

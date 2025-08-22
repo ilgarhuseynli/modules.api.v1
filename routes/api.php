@@ -10,6 +10,8 @@ Route::prefix('v1')->group(function () {
 
     require __DIR__.'/v1/user.php';
 
+    require __DIR__.'/v1/customer.php';
+
     require __DIR__.'/v1/profile.php';
 
 
