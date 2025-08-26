@@ -6,6 +6,7 @@ use App\Enums\AdminstrationLevel;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserPolicy
@@ -14,6 +15,10 @@ class UserPolicy
 
     public function before(User $user, $ability)
     {
+        if (Gate::denies('user_access')) {
+            return false;
+        }
+
         if ($user->cannot($ability)){
             return false;
         }

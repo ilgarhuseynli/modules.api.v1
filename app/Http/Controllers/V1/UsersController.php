@@ -24,7 +24,6 @@ class UsersController extends Controller
 
     public function __construct()
     {
-        Gate::authorize('user_access');
         $this->userService = new UserService();
     }
 

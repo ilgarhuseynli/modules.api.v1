@@ -11,6 +11,14 @@ trait HasPermission
 
     //PERMISSION FUNCTIONS
 
+    public function modifyCustomPermission($permissionId,bool $allow)
+    {
+        $this->permissions()->syncWithoutDetaching([
+            $permissionId => ['allow' => $allow]
+        ]);
+    }
+
+
     public function addCustomPermission($permissionId)
     {
         $this->permissions()->syncWithoutDetaching([
@@ -66,7 +74,10 @@ trait HasPermission
 
         $allPermissions = Permission::all()->pluck('title', 'id');
 
-        $rolePermissions = $this->role->permissions()->pluck('title', 'id');
+        $rolePermissions = [];
+        if ($this->role_id){
+            $rolePermissions = $this->role->permissions()->pluck('title', 'id');
+        }
 
         $userPermissions = $this->permissions()->withPivot(['allow', 'all'])->get()->pluck('pivot', 'id');
 

@@ -156,8 +156,6 @@ class TwoFactorAuthController extends Controller
 
         $recoveryCodes = $user->generateRecoveryCodes();
 
-        return response()->json([
-            'recovery_codes' => $recoveryCodes
-        ]);
+        return response()->json($recoveryCodes);
     }
 }

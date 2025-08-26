@@ -27,6 +27,7 @@ class UserPermissionsController extends Controller
             $group = $titles[0];
 
             $perm['label'] = implode(' ', $titles);
+            $perm['allow'] = !!$perm['allow'];
 
             $res[$group][] = $perm;
         }
@@ -52,6 +53,7 @@ class UserPermissionsController extends Controller
         Gate::authorize('user_permission_edit');
 
         $permissionId = $request->permission_id;
+        $allowed = (bool)$request->allow;
 
         // Check if the permission exists directly in the database
         $permExist = Permission::where('id', $permissionId)->exists();
@@ -61,7 +63,7 @@ class UserPermissionsController extends Controller
         }
 
         if ($request->locked) {
-            if ($request->allow){
+            if ($allowed){
                 $user->addCustomPermission($permissionId);
 
                 if (array_key_exists('all',$request->toArray())){

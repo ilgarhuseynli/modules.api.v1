@@ -24,6 +24,7 @@ class CustomerResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'keyword' => $this->keyword,
+            'birth_date' => $this->birth_date,
             'name' => $this->name,
             'address' => $this->address ? : null,
             'address_list' => $this->addresses ?? [],

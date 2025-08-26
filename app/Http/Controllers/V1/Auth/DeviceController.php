@@ -14,9 +14,7 @@ class DeviceController extends Controller
             ->orderBy('last_active_at', 'desc')
             ->get();
 
-        return response()->json([
-            'devices' => $devices
-        ]);
+        return response()->json($devices);
     }
 
     public function logout(Request $request, $deviceId)

@@ -26,6 +26,7 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'keyword' => $this->keyword,
             'name' => $this->name,
+            'birth_date' => $this->birth_date,
             'address' => $this->address ? : null,
             'address_list' => $this->addresses ?? [],
             'image' => $avatar['url'] ?? '',
@@ -35,6 +36,7 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'phones' => $formatedPhones,
             'email' => $this->email,
+            'two_factor_enabled' => $this->two_factor_enabled,
             'created_at' => strtotime($this->created_at),
         ];
     }
