@@ -4,6 +4,7 @@ namespace Modules\Blog\Controllers;
 
 use App\Classes\Helpers;
 use App\Http\Controllers\Controller;
+use App\Services\FileService;
 use Illuminate\Http\Request;
 use Modules\Blog\Models\Category;
 use Modules\Blog\Requests\StoreCategoryRequest;
@@ -63,6 +64,36 @@ class CategoryController extends Controller
     public function destroy(Category $category): mixed
     {
         $category->delete();
+
+        return response()->noContent();
+    }
+
+    public function fileupload(Request $request, Category $category, FileService $fileService): mixed
+    {
+        $request->validate([
+            'type' => 'required|in:image',
+            'file_id' => 'required|numeric',
+        ]);
+
+        $fileData = $fileService->storeTmpFile($category, $request->input('file_id'), $request->type);
+
+        if (! $fileData) {
+            return response()->json(['message' => 'File not saved. Please try again.'], 402);
+        }
+
+        $category->update(['image_id' => $fileData['id']]);
+
+        return response()->json($fileData);
+    }
+
+    public function filedelete(Request $request, Category $category, FileService $fileService): mixed
+    {
+        $request->validate([
+            'file_id' => 'required|exists:files,id',
+        ]);
+
+        $fileService->deleteFile($category->image);
+        $category->update(['image_id' => null]);
 
         return response()->noContent();
     }

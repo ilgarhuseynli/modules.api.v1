@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\FileService;
 use Illuminate\Http\Request;
+use Modules\Blog\Models\Category;
+use Modules\Blog\Models\Post;
 
 class MediaController extends Controller
 {
@@ -15,6 +17,8 @@ class MediaController extends Controller
     private array $validClasses = [
         'user' => User::class,
         'customer' => User::class,
+        'blog_post' => Post::class,
+        'blog_category' => Category::class,
 //        'order' => Order::class // Add actual class if exists
     ];
 

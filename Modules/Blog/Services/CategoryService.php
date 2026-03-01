@@ -2,6 +2,7 @@
 
 namespace Modules\Blog\Services;
 
+use App\Services\FileService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\Blog\Models\Category;
@@ -10,6 +11,7 @@ class CategoryService
 {
     public function __construct(
         protected SortOrderService $sortOrderService,
+        protected FileService $fileService,
     ) {}
 
     public function create(array $data): Category
@@ -39,6 +41,17 @@ class CategoryService
                     'description' => $translation['description'] ?? null,
                 ]);
             }
+
+
+            if (! empty($data['image_id'])) {
+                try {
+                    $fileData = $this->fileService->storeTmpFile($category,$data['image_id'],'image');
+                    $category->update(['image_id' => $fileData['id']]);
+                }catch (\Exception $exception){
+                    //skip
+                }
+            }
+
 
             return $category->load('translations');
         });

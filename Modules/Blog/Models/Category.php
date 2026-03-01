@@ -2,11 +2,14 @@
 
 namespace Modules\Blog\Models;
 
+use App\Models\File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Blog\Database\Factories\CategoryFactory;
 
@@ -67,8 +70,21 @@ class Category extends Model
         return $this->belongsToMany(Post::class, 'blog_post_category', 'category_id', 'post_id');
     }
 
-    public function image(): BelongsTo
+    public function image(): MorphOne
     {
-        return $this->belongsTo(\App\Models\File::class, 'image_id');
+        return $this->morphOne(File::class, 'model')
+            ->where('type', 'image')
+            ->where('id', $this->image_id)
+            ->latest();
+    }
+
+
+    public function getImageSizes(): array
+    {
+        return [
+            'medium' => [600, 600],
+            'small' => [300, 300],
+            'thumbnail' => [100, 100],
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\Blog\Services;
 
+use App\Services\FileService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Modules\Blog\Models\Post;
@@ -10,6 +11,7 @@ class PostService
 {
     public function __construct(
         protected SortOrderService $sortOrderService,
+        protected FileService $fileService,
     ) {}
 
     public function create(array $data): Post
@@ -45,6 +47,27 @@ class PostService
 
             if (! empty($data['category_ids'])) {
                 $post->categories()->sync($data['category_ids']);
+            }
+
+
+            if (! empty($data['cover_image_id'])) {
+
+                try {
+                    $fileData = $this->fileService->storeTmpFile($post,$data['cover_image_id'],'cover_image');
+                    $post->update(['cover_image_id' => $fileData['id']]);
+                }catch (\Exception $exception){
+                    //skip
+                }
+            }
+
+            if (! empty($data['images'])) {
+                foreach ($data['images'] as $imageId) {
+                    try {
+                        $fileData = $this->fileService->storeTmpFile($post,$imageId,'images');
+                    }catch (\Exception $exception){
+                        //skip
+                    }
+                }
             }
 
             return $post->load('translations', 'categories');

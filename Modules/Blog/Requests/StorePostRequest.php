@@ -24,6 +24,10 @@ class StorePostRequest extends FormRequest
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['integer', 'exists:blog_categories,id'],
 
+            'cover_image_id' => ['nullable', 'string'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['nullable', 'string'],
+
             'status' => ['nullable', 'integer', 'in:'.implode(',', PostStatus::getValues())],
             'is_featured' => ['nullable', 'boolean'],
             'published_at' => ['nullable', 'date'],
