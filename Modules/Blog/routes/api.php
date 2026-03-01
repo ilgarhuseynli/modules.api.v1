@@ -9,6 +9,7 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.gates']], function () {
     Route::group(['prefix' => 'blog'], function () {
 
         // Categories
+        Route::post('categories/minlist', [CategoryController::class, 'minlist']);
         Route::apiResource('categories', CategoryController::class);
 
         // Posts

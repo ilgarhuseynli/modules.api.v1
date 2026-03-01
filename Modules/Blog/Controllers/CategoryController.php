@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Modules\Blog\Models\Category;
 use Modules\Blog\Requests\StoreCategoryRequest;
 use Modules\Blog\Requests\UpdateCategoryRequest;
+use Modules\Blog\Resources\CategoryMinlistResource;
 use Modules\Blog\Resources\CategoryResource;
 use Modules\Blog\Services\CategoryService;
 
@@ -23,6 +24,19 @@ class CategoryController extends Controller
             ->paginate($limit);
 
         return CategoryResource::collection($categories);
+    }
+
+    public function minlist(Request $request): mixed
+    {
+        $limit = Helpers::manageLimitRequest($request->limit);
+        $sort = Helpers::manageSortRequest($request->sort, $request->sort_type, Category::$sortable);
+
+        $categories = Category::with('translations')
+            ->where('is_active', true)
+            ->orderBy($sort['field'], $sort['direction'])
+            ->simplePaginate($limit);
+
+        return CategoryMinlistResource::collection($categories);
     }
 
     public function store(StoreCategoryRequest $request, CategoryService $categoryService): mixed

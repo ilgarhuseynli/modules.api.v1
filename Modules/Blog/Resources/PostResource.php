@@ -18,7 +18,7 @@ class PostResource extends JsonResource
                 'id' => $this->author->id,
                 'name' => $this->author->name,
             ]),
-            'status' => $this->status?->data(),
+            'status' => $this->status?->meta(),
             'cover_image' => $featuredImage,
             'images' => $this->whenLoaded('images', fn () => $this->images->map(fn ($img) => FileService::getResource($img))),
             'is_featured' => $this->is_featured,
