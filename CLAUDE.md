@@ -101,6 +101,37 @@ Key tables: `users`, `roles`, `permissions`, `permission_role`, `user_permission
 - `POST /api/v1/media/store` — Temp file upload
 - 2FA endpoints: enable, verify, validate, recovery codes
 - Device endpoints: list, logout device, logout all
+- Blog module: `GET|POST /api/v1/blog/posts`, `GET|PUT|DELETE /api/v1/blog/posts/{post}`
+- Blog categories: `GET|POST /api/v1/blog/categories`, `GET|PUT|DELETE /api/v1/blog/categories/{category}`
+
+## Module System
+
+New features use a custom module system. Modules live in `Modules/` at project root (not inside `app/`).
+
+### Module Structure
+
+```
+Modules/
+└── Blog/
+    ├── BlogServiceProvider.php   # Registered in bootstrap/providers.php
+    ├── Controllers/              # Thin controllers, delegate to services
+    ├── Models/                   # Eloquent models with translations pattern
+    ├── Services/                 # Business logic with DB::transaction
+    ├── Requests/                 # Form Request validation
+    ├── Resources/                # API Resources
+    ├── Enums/                    # PHP native enums (getList, getName, getValues, data, key, label, meta)
+    ├── Database/migrations/      # Auto-loaded by service provider
+    ├── Database/Factories/       # Model factories
+    ├── Database/Seeders/         # Module seeders
+    └── routes/api.php            # Routes under /api/v1, loaded by service provider
+```
+
+### Module Conventions
+
+- **Namespace**: `Modules\{ModuleName}\` (autoloaded via composer.json PSR-4)
+- **Translations**: Separate `*_translations` tables with `locale` column (az, en, ru)
+- **Service Provider**: Each module has a ServiceProvider registered in `bootstrap/providers.php`
+- **Routes**: Prefixed with `api/v1` via service provider, wrapped in `auth:sanctum` + `auth.gates` middleware
 
 ===
 
