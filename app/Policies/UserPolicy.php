@@ -31,7 +31,7 @@ class UserPolicy
      * @param AdminstrationLevel $level
      * @return bool
      */
-    protected function hasAdministrationAccess(User $user,AdminstrationLevel $level = null ): bool
+    protected function hasAdministrationAccess(User $user,AdminstrationLevel $level): bool
     {
         $authUser = Auth::user();
         if ($level){
