@@ -8,25 +8,38 @@ use Modules\Blog\Models\Post;
 
 class PostService
 {
+    public function __construct(
+        protected SortOrderService $sortOrderService,
+    ) {}
+
     public function create(array $data): Post
     {
         return DB::transaction(function () use ($data) {
+            $sortOrder = $this->sortOrderService->insertAtPosition(
+                Post::class,
+                $data['sort_order'] ?? null,
+            );
+
             $post = Post::create([
                 'author_id' => $data['author_id'],
                 'status' => $data['status'] ?? 1,
                 'cover_image_id' => $data['cover_image_id'] ?? null,
                 'is_featured' => $data['is_featured'] ?? false,
                 'published_at' => $data['published_at'] ?? null,
-                'sort_order' => $data['sort_order'] ?? 0,
+                'sort_order' => $sortOrder,
             ]);
 
             foreach ($data['translations'] as $locale => $translation) {
+                if (empty($translation['title']) && empty($translation['content'])) {
+                    continue;
+                }
+
                 $post->translations()->create([
                     'locale' => $locale,
-                    'title' => $translation['title'],
-                    'slug' => Str::slug($translation['title']),
+                    'title' => $translation['title'] ?? '',
+                    'slug' => Str::slug($translation['title'] ?? ''),
                     'excerpt' => $translation['excerpt'] ?? null,
-                    'content' => $translation['content'],
+                    'content' => $translation['content'] ?? '',
                 ]);
             }
 
@@ -41,23 +54,36 @@ class PostService
     public function update(Post $post, array $data): Post
     {
         return DB::transaction(function () use ($post, $data) {
+            $sortOrder = $post->sort_order;
+
+            if (isset($data['sort_order']) && (int) $data['sort_order'] !== $post->sort_order) {
+                $sortOrder = $this->sortOrderService->moveToPosition(
+                    $post,
+                    $data['sort_order'],
+                );
+            }
+
             $post->update([
                 'status' => $data['status'] ?? $post->status,
                 'cover_image_id' => $data['cover_image_id'] ?? $post->cover_image_id,
                 'is_featured' => $data['is_featured'] ?? $post->is_featured,
                 'published_at' => $data['published_at'] ?? $post->published_at,
-                'sort_order' => $data['sort_order'] ?? $post->sort_order,
+                'sort_order' => $sortOrder,
             ]);
 
             if (isset($data['translations'])) {
                 foreach ($data['translations'] as $locale => $translation) {
+                    if (empty($translation['title']) && empty($translation['content'])) {
+                        continue;
+                    }
+
                     $post->translations()->updateOrCreate(
                         ['locale' => $locale],
                         [
-                            'title' => $translation['title'],
-                            'slug' => Str::slug($translation['title']),
+                            'title' => $translation['title'] ?? '',
+                            'slug' => Str::slug($translation['title'] ?? ''),
                             'excerpt' => $translation['excerpt'] ?? null,
-                            'content' => $translation['content'],
+                            'content' => $translation['content'] ?? '',
                         ]
                     );
                 }
@@ -73,6 +99,6 @@ class PostService
 
     public function delete(Post $post): void
     {
-        $post->delete();
+        $this->sortOrderService->deleteAndShift($post);
     }
 }
