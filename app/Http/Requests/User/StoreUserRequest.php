@@ -2,20 +2,18 @@
 
 namespace App\Http\Requests\User;
 
+use App\Enums\AdminstrationLevel;
+use App\Enums\UserGender;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rules;
-use App\Enums\UserType;
-use App\Enums\UserGender;
-use App\Enums\AdminstrationLevel;
-
 
 class StoreUserRequest extends FormRequest
 {
     public function authorize()
     {
-        Gate::authorize('user_create',[User::class, request()->input('administrator_level')]);
+        Gate::authorize('user_create', [User::class, request()->input('administrator_level')]);
 
         return true;
     }
@@ -27,7 +25,6 @@ class StoreUserRequest extends FormRequest
      */
     protected $stopOnFirstFailure = true;
 
-
     public function rules()
     {
         return [
@@ -37,11 +34,10 @@ class StoreUserRequest extends FormRequest
 
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'is_company' => ['boolean'],
-            'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
+            'administrator_level' => ['nullable', 'integer', 'in:'.implode(',', AdminstrationLevel::getValues())],
             'send_notification' => ['boolean'],
-            'type' => ['required', 'in:' . implode(',', UserType::getValues())],
-            'avatar' => ['nullable',],
-            'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
+            'avatar' => ['nullable'],
+            'gender' => ['nullable', 'in:'.implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
             'address_list' => ['array'],
 
@@ -56,7 +52,6 @@ class StoreUserRequest extends FormRequest
             ],
         ];
     }
-
 
     /**
      * Get custom attributes for validator errors.
@@ -75,7 +70,6 @@ class StoreUserRequest extends FormRequest
         ];
     }
 
-
     /**
      * Get the error messages for the defined validation rules.
      *
@@ -84,10 +78,8 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.in' => 'The user type must be one of: ' . implode(', ', UserType::getValues()),
-            'gender.in' => 'The gender must be one of: ' . implode(', ', UserGender::getValues()),
-            'administrator_level.in' => 'The admin level must be one of: ' . implode(', ', AdminstrationLevel::getValues()),
+            'gender.in' => 'The gender must be one of: '.implode(', ', UserGender::getValues()),
+            'administrator_level.in' => 'The admin level must be one of: '.implode(', ', AdminstrationLevel::getValues()),
         ];
     }
-
 }

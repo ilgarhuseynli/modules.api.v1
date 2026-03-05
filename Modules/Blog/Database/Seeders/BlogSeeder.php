@@ -2,7 +2,6 @@
 
 namespace Modules\Blog\Database\Seeders;
 
-use App\Enums\UserType;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -42,7 +41,7 @@ class BlogSeeder extends Seeder
             $categories[] = $category;
         }
 
-        $author = User::where('type', UserType::EMPLOYEE)->first();
+        $author = User::first();
 
         if (! $author) {
             return;

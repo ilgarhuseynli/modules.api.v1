@@ -4,7 +4,6 @@ namespace App\Http\Requests\User;
 
 use App\Enums\AdminstrationLevel;
 use App\Enums\UserGender;
-use App\Enums\UserType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -24,21 +23,19 @@ class UpdateUserRequest extends FormRequest
         $id = request()->route('user')->id ?? request()->route('user');
 
         return [
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $id .',id'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$id.',id'],
 
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
             'is_company' => ['boolean'],
-            'administrator_level' => ['nullable', 'integer', 'in:' . implode(',', AdminstrationLevel::getValues())],
+            'administrator_level' => ['nullable', 'integer', 'in:'.implode(',', AdminstrationLevel::getValues())],
             'send_notification' => ['boolean'],
-            'gender' => ['nullable', 'in:' . implode(',', UserGender::getValues())],
+            'gender' => ['nullable', 'in:'.implode(',', UserGender::getValues())],
             'birth_date' => ['nullable', 'date'],
             'address_list' => ['array'],
             'phones' => ['array'],
         ];
     }
-
-
 
     /**
      * Get custom attributes for validator errors.
@@ -57,7 +54,6 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 
-
     /**
      * Get the error messages for the defined validation rules.
      *
@@ -66,9 +62,8 @@ class UpdateUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.in' => 'The user type must be one of: ' . implode(', ', UserType::getValues()),
-            'gender.in' => 'The gender must be one of: ' . implode(', ', UserGender::getValues()),
-            'administrator_level.in' => 'The admin level must be one of: ' . implode(', ', AdminstrationLevel::getValues()),
+            'gender.in' => 'The gender must be one of: '.implode(', ', UserGender::getValues()),
+            'administrator_level.in' => 'The admin level must be one of: '.implode(', ', AdminstrationLevel::getValues()),
         ];
     }
 }

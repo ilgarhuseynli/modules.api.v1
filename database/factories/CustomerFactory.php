@@ -4,25 +4,20 @@ namespace Database\Factories;
 
 use App\Classes\Helpers;
 use App\Enums\UserGender;
+use App\Models\Customer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Customer>
  */
-class UserFactory extends Factory
+class CustomerFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
+    protected $model = Customer::class;
+
     protected static ?string $password;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $first_name = $this->faker->firstName();
@@ -36,7 +31,6 @@ class UserFactory extends Factory
 
         $email = fake()->unique()->safeEmail();
 
-        // concat full name slug, phones, email to generate keyword
         $keyword = Str::slug($full_name, ' ');
         $keyword .= implode(' ', $phones);
         $keyword .= $email;
@@ -66,12 +60,10 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'two_factor_enabled' => false,
-            'two_factor_verified_at' => null,
         ];
     }
 
-    public function generatePhone()
+    public function generatePhone(): string
     {
         $phone = '+994'.fake()->randomElement(['50', '51', '55', '70', '77', '99']).
             fake()->numerify('#######');
@@ -79,9 +71,6 @@ class UserFactory extends Factory
         return Helpers::filterPhone($phone);
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [

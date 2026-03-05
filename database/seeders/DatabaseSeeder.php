@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\AdminstrationLevel;
-use App\Enums\UserType;
+use App\Models\Customer;
 use App\Models\Role;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -30,12 +30,12 @@ class DatabaseSeeder extends Seeder
         //
         //        User::factory()->create([
         //            'email' => 'admin@admin.com',
-        //            'type' => UserType::EMPLOYEE,
         //            'administrator_level' => AdminstrationLevel::SUPER_ADMIN,
         //            'role_id' => Role::ROLE_ADMIN
         //        ]);
         //
         //        User::factory(10)->create();
+        //        Customer::factory(10)->create();
 
         //        \Illuminate\Support\Facades\Artisan::call('module:seed Blog');
 

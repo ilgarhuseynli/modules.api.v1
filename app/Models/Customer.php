@@ -2,34 +2,20 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Classes\Helpers;
-use App\Enums\AdminstrationLevel;
 use App\Enums\UserGender;
-use App\Traits\HasPermission;
-use App\Traits\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class Customer extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens,
-        HasFactory,
-        HasPermission,
-        Notifiable,
-        TwoFactorAuthenticatable;
+    /** @use HasFactory<\Database\Factories\CustomerFactory> */
+    use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'first_name',
@@ -38,9 +24,7 @@ class User extends Authenticatable
         'phone',
         'keyword',
         'is_company',
-        'administrator_level',
         'send_notification',
-        'role_id',
         'avatar_id',
         'gender',
         'birth_date',
@@ -49,24 +33,11 @@ class User extends Authenticatable
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
-        'two_factor_trusted_devices',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -76,10 +47,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_company' => 'boolean',
             'send_notification' => 'boolean',
-            'two_factor_enabled' => 'boolean',
-            'two_factor_verified_at' => 'datetime',
             'gender' => UserGender::class,
-            'administrator_level' => AdminstrationLevel::class,
         ];
     }
 
@@ -104,11 +72,6 @@ class User extends Authenticatable
 
     // Relationships
 
-    public function activeDevices(): HasMany
-    {
-        return $this->hasMany(ActiveDevice::class);
-    }
-
     public function avatar()
     {
         return $this->morphOne(File::class, 'model')
@@ -122,20 +85,9 @@ class User extends Authenticatable
         return $this->morphMany(File::class, 'model')->where('type', 'files');
     }
 
-    public function role()
-    {
-        return $this->belongsTo(Role::class, 'role_id');
-    }
-
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class, 'user_permission')
-            ->withPivot(['allow', 'all']);
-    }
-
     public function addresses()
     {
-        return $this->hasMany(UserAddress::class, 'user_id');
+        return $this->hasMany(CustomerAddress::class, 'customer_id');
     }
 
     // Attributes
@@ -165,16 +117,16 @@ class User extends Authenticatable
     {
         parent::boot();
 
-        static::saving(function ($user) {
-            $user->name = implode(' ', array_filter([
-                $user->first_name,
-                $user->last_name,
+        static::saving(function ($customer) {
+            $customer->name = implode(' ', array_filter([
+                $customer->first_name,
+                $customer->last_name,
             ]));
-            $user->keyword = implode(' ', array_filter([
-                $user->first_name,
-                $user->last_name,
-                $user->phone,
-                $user->email,
+            $customer->keyword = implode(' ', array_filter([
+                $customer->first_name,
+                $customer->last_name,
+                $customer->phone,
+                $customer->email,
             ]));
         });
     }
@@ -186,7 +138,6 @@ class User extends Authenticatable
         return $query
             ->when(filled($filters['name'] ?? null), fn ($q) => $q->where('name', 'like', '%'.$filters['name'].'%'))
             ->when(filled($filters['keyword'] ?? null), fn ($q) => $q->where('keyword', 'like', '%'.$filters['keyword'].'%'))
-            ->when(filled($filters['phone'] ?? null), fn ($q) => $q->where('phone', $filters['phone']))
-            ->when(filled($filters['role_id'] ?? null), fn ($q) => $q->where('role_id', $filters['role_id']));
+            ->when(filled($filters['phone'] ?? null), fn ($q) => $q->where('phone', $filters['phone']));
     }
 }

@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers\V1\Auth;
 
-use App\Enums\UserType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
 use App\Models\ActiveDevice;
+use App\Models\Customer;
 use App\Models\User;
 use App\Services\ActiveDeviceService;
-use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use Jenssegers\Agent\Agent;
 use Illuminate\Validation\Rules;
+use Jenssegers\Agent\Agent;
 
 class AuthController extends Controller
 {
@@ -37,7 +35,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token');
 
         // Track the device
-        $agent = new Agent();
+        $agent = new Agent;
         $device = new ActiveDevice([
             'user_id' => $user->id,
             'token_id' => $token->accessToken->id,
@@ -53,46 +51,40 @@ class AuthController extends Controller
             'token' => $token->plainTextToken,
             'user' => $user,
             'requires_2fa' => $user->two_factor_enabled,
-            'current_device' => $device
+            'current_device' => $device,
         ]);
     }
-
-
 
     /**
      * Handle an incoming registration request.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function register(Request $request,UserService $userService)
+    public function register(Request $request)
     {
         $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.Customer::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-
-        $user = User::create([
+        $customer = Customer::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
-            'type' => UserType::CUSTOMER,
             'password' => Hash::make($request->string('password')),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $customer->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'status' => true,
-            'message' => 'User created successfully',
+            'message' => 'Customer created successfully',
             'token' => $token,
-            'user' => $user
+            'user' => $customer,
         ], 201);
     }
-
-
 
     /**
      * Destroy an authenticated session.
@@ -107,25 +99,23 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully'
+            'message' => 'Logged out successfully',
         ]);
     }
 
-
-
     // get the authenticated user method
-    public function user(Request $request) {
+    public function user(Request $request)
+    {
 
         $userData = new UserResource($request->user());
 
         return response()->json([
-            $userData
+            $userData,
         ]);
     }
 
-
-
-    public function settings() {
+    public function settings()
+    {
 
         $user = Auth::user();
 
@@ -141,5 +131,4 @@ class AuthController extends Controller
             'permissions' => $permissionsArray,
         ]);
     }
-
 }
