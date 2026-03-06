@@ -3,45 +3,48 @@
 namespace App\Http\Controllers\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\User;
 use App\Services\FileService;
 use Illuminate\Http\Request;
 use Modules\Blog\Models\Category;
 use Modules\Blog\Models\Post;
+use Modules\Rental\Models\Car;
 
 class MediaController extends Controller
 {
     private const DEFAULT_MAX_SIZE = 51200; // // 50MB limit
+
     private const DEFAULT_DIMENSION = 5000; // pixels
 
     private array $validClasses = [
         'user' => User::class,
-        'customer' => User::class,
+        'customer' => Customer::class,
         'blog_post' => Post::class,
+        'rental_car' => Car::class,
         'blog_category' => Category::class,
-//        'order' => Order::class // Add actual class if exists
+        //        'order' => Order::class // Add actual class if exists
     ];
 
-    public function store(Request $request,FileService $fileService)
+    public function store(Request $request, FileService $fileService)
     {
         set_time_limit(0);
 
         $this->validateUpload($request);
 
-        $parent = $request->input('parent','user');
+        $parent = $request->input('parent', 'user');
         $parentClass = $this->getParentClass($parent);
 
-        if (!$parentClass ) {
+        if (! $parentClass) {
             return response()->json(['message' => "Invalid type: {$parent}"], 402);
         }
 
         $file = $request->file('file');
 
-        $tmpFile = $fileService->uploadTmpFile($file,$parentClass);
+        $tmpFile = $fileService->uploadTmpFile($file, $parentClass);
 
         return response()->json($tmpFile);
     }
-
 
     private function validateUpload(Request $request): void
     {
@@ -55,17 +58,17 @@ class MediaController extends Controller
 
         $mimes = [];
 
-        //image
+        // image
         $mimes[] = 'jpg,jpeg,png,gif,webp';
 
-        //documents
+        // documents
         $mimes[] = 'pdf,doc,docx,xls,xlsx,csv';
 
-        //video
+        // video
         $mimes[] = 'mp4,mov,avi';
 
-        //archive
-//        $mimes[] = 'zip,rar,7z';
+        // archive
+        //        $mimes[] = 'zip,rar,7z';
 
         $mimes = implode(',', $mimes);
 
@@ -83,12 +86,10 @@ class MediaController extends Controller
         $request->validate($rules);
     }
 
-
     private function getParentClass(string $parent): ?object
     {
         $classPath = $this->validClasses[$parent] ?? null;
 
         return $classPath && class_exists($classPath) ? new $classPath : null;
     }
-
 }

@@ -16,26 +16,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //        $this->call([
-        //            PermissionsTableSeeder::class,
-        //            PermissionRoleTableSeeder::class,
-        //        ]);
+        //                $this->call([
+        //                    PermissionsTableSeeder::class,
+        //                    PermissionRoleTableSeeder::class,
+        //                ]);
 
-        //        $this->call([
-        //            PermissionsTableSeeder::class,
-        //            RolesTableSeeder::class,
-        //            PermissionRoleTableSeeder::class,
-        //            SettingsTableSeeder::class,
-        //        ]);
-        //
-        //        User::factory()->create([
-        //            'email' => 'admin@admin.com',
-        //            'administrator_level' => AdminstrationLevel::SUPER_ADMIN,
-        //            'role_id' => Role::ROLE_ADMIN
-        //        ]);
-        //
-        //        User::factory(10)->create();
-        //        Customer::factory(10)->create();
+        $this->call([
+            PermissionsTableSeeder::class,
+            RolesTableSeeder::class,
+            PermissionRoleTableSeeder::class,
+            SettingsTableSeeder::class,
+        ]);
+
+        User::factory()->create([
+            'email' => 'admin@admin.com',
+            'administrator_level' => AdminstrationLevel::SUPER_ADMIN,
+            'role_id' => Role::ROLE_ADMIN,
+        ]);
+
+        User::factory(30)->create();
+        Customer::factory(100)->create();
 
         //        \Illuminate\Support\Facades\Artisan::call('module:seed Blog');
 
