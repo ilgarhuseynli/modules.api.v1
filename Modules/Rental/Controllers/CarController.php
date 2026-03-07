@@ -30,9 +30,21 @@ class CarController extends Controller
 
     public function minlist(Request $request): mixed
     {
-        $cars = Car::where('is_active', true)
+        $query = Car::where('is_active', true);
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('plate_number', 'like', "%{$search}%")
+                    ->orWhereRaw("CONCAT(brand, ' ', model) LIKE ?", ["%{$search}%"]);
+            });
+        }
+
+        $cars = $query
             ->orderBy('brand')
             ->orderBy('model')
+            ->limit($request->input('limit', 20))
             ->get();
 
         return CarMinlistResource::collection($cars);
