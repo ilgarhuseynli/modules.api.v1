@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Rental\Database\Factories\BadgeFactory;
 
 class Badge extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): BadgeFactory
+    {
+        return BadgeFactory::new();
+    }
 
     protected $table = 'rental_badges';
 

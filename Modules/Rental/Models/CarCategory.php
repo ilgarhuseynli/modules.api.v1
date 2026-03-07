@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Rental\Database\Factories\CarCategoryFactory;
 
 class CarCategory extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function newFactory(): CarCategoryFactory
+    {
+        return CarCategoryFactory::new();
+    }
 
     protected $table = 'rental_car_categories';
 

@@ -6,11 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Rental\Database\Factories\ExtraFactory;
 use Modules\Rental\Enums\PriceType;
 
 class Extra extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): ExtraFactory
+    {
+        return ExtraFactory::new();
+    }
 
     protected $table = 'rental_extras';
 

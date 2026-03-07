@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Modules\Rental\Database\Factories\CarFactory;
 use Modules\Rental\Enums\BodyType;
 use Modules\Rental\Enums\FuelType;
 use Modules\Rental\Enums\Transmission;
@@ -19,6 +20,11 @@ use Modules\Rental\Enums\Transmission;
 class Car extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected static function newFactory(): CarFactory
+    {
+        return CarFactory::new();
+    }
 
     protected $table = 'rental_cars';
 

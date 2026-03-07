@@ -14,6 +14,7 @@ class LocationMinlistResource extends JsonResource
                 ?? $this->translations->first()?->name,
             'address' => $this->translations->where('locale', app()->getLocale())->first()?->address
                 ?? $this->translations->first()?->address,
+            'price' => $this->price,
         ];
     }
 }

@@ -11,6 +11,7 @@ class LocationResource extends JsonResource
         return [
             'id' => $this->id,
             'is_active' => $this->is_active,
+            'price' => $this->price,
             'sort_order' => $this->sort_order,
             'translations' => $this->whenLoaded('translations', fn () => $this->translations->keyBy('locale')->map(fn ($t) => [
                 'name' => $t->name,

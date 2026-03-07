@@ -5,15 +5,22 @@ namespace Modules\Rental\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Rental\Database\Factories\LocationFactory;
 
 class Location extends Model
 {
     use HasFactory;
 
+    protected static function newFactory(): LocationFactory
+    {
+        return LocationFactory::new();
+    }
+
     protected $table = 'rental_locations';
 
     protected $fillable = [
         'is_active',
+        'price',
         'sort_order',
     ];
 
@@ -21,6 +28,7 @@ class Location extends Model
     {
         return [
             'is_active' => 'boolean',
+            'price' => 'decimal:2',
             'sort_order' => 'integer',
         ];
     }

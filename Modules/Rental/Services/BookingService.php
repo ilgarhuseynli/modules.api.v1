@@ -7,6 +7,7 @@ use Modules\Rental\Enums\PriceTier;
 use Modules\Rental\Models\Booking;
 use Modules\Rental\Models\Car;
 use Modules\Rental\Models\Extra;
+use Modules\Rental\Models\Location;
 
 class BookingService
 {
@@ -26,8 +27,13 @@ class BookingService
                 [$extrasTotal, $extraSnapshots] = $this->calculateExtras($data['extra_ids'], $car, $days);
             }
 
+            $locationsTotal = $this->calculateLocationsTotal(
+                $data['pickup_location_id'] ?? null,
+                $data['dropoff_location_id'] ?? null,
+            );
+
             $discount = $data['discount'] ?? '0.00';
-            $totalPrice = bcsub(bcadd($basePrice, $extrasTotal, 2), $discount, 2);
+            $totalPrice = bcsub(bcadd(bcadd($basePrice, $extrasTotal, 2), $locationsTotal, 2), $discount, 2);
 
             $booking = Booking::create([
                 'car_id' => $data['car_id'],
@@ -43,6 +49,7 @@ class BookingService
                 'price_per_day' => $pricePerDay,
                 'base_price' => $basePrice,
                 'extras_total' => $extrasTotal,
+                'locations_total' => $locationsTotal,
                 'discount' => $discount,
                 'total_price' => $totalPrice,
                 'deposit' => $data['deposit'] ?? $car->deposit,
@@ -82,6 +89,28 @@ class BookingService
 
             return $booking->load('car', 'extras', 'pickupLocation', 'dropoffLocation', 'customer');
         });
+    }
+
+    private function calculateLocationsTotal(?int $pickupLocationId, ?int $dropoffLocationId): string
+    {
+        $total = '0.00';
+
+        $ids = array_filter([$pickupLocationId, $dropoffLocationId]);
+        if (empty($ids)) {
+            return $total;
+        }
+
+        $locations = Location::whereIn('id', $ids)->get()->keyBy('id');
+
+        if ($pickupLocationId && $locations->has($pickupLocationId)) {
+            $total = bcadd($total, (string) ($locations->get($pickupLocationId)->price ?? '0'), 2);
+        }
+
+        if ($dropoffLocationId && $locations->has($dropoffLocationId)) {
+            $total = bcadd($total, (string) ($locations->get($dropoffLocationId)->price ?? '0'), 2);
+        }
+
+        return $total;
     }
 
     private function determinePriceTier(int $days): PriceTier

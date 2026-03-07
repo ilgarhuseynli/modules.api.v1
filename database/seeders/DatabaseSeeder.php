@@ -41,6 +41,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             \Modules\Blog\Database\Seeders\BlogSeeder::class,
+            \Modules\Rental\Database\Seeders\RentalSeeder::class,
         ]);
     }
 }

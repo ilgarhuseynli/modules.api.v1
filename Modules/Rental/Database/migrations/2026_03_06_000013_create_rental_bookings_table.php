@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('price_per_day', 10, 2);
             $table->decimal('base_price', 10, 2);
             $table->decimal('extras_total', 10, 2)->default(0);
+            $table->decimal('locations_total', 10, 2)->default(0);
             $table->decimal('discount', 10, 2)->default(0);
             $table->decimal('total_price', 10, 2);
             $table->decimal('deposit', 10, 2)->nullable();

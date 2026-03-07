@@ -28,6 +28,7 @@ class BookingResource extends JsonResource
             'price_per_day' => $this->price_per_day,
             'base_price' => $this->base_price,
             'extras_total' => $this->extras_total,
+            'locations_total' => $this->locations_total,
             'discount' => $this->discount,
             'total_price' => $this->total_price,
             'deposit' => $this->deposit,

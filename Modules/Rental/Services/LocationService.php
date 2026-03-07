@@ -21,6 +21,7 @@ class LocationService
 
             $location = Location::create([
                 'is_active' => $data['is_active'] ?? true,
+                'price' => $data['price'] ?? null,
                 'sort_order' => $sortOrder,
             ]);
 
@@ -54,6 +55,7 @@ class LocationService
 
             $location->update([
                 'is_active' => $data['is_active'] ?? $location->is_active,
+                'price' => array_key_exists('price', $data) ? $data['price'] : $location->price,
                 'sort_order' => $sortOrder,
             ]);
 

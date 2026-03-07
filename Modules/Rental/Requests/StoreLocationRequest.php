@@ -19,6 +19,7 @@ class StoreLocationRequest extends FormRequest
             'translations.*.name' => ['nullable', 'string', 'max:255'],
             'translations.*.address' => ['nullable', 'string', 'max:500'],
 
+            'price' => ['nullable', 'numeric', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer'],
         ];
