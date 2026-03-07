@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Modules\Rental\Models\Car;
 use Modules\Rental\Requests\StoreCarRequest;
 use Modules\Rental\Requests\UpdateCarRequest;
+use Modules\Rental\Resources\CarMinlistResource;
 use Modules\Rental\Resources\CarResource;
 use Modules\Rental\Services\CarService;
 
@@ -25,6 +26,16 @@ class CarController extends Controller
             ->paginate($limit);
 
         return CarResource::collection($cars);
+    }
+
+    public function minlist(Request $request): mixed
+    {
+        $cars = Car::where('is_active', true)
+            ->orderBy('brand')
+            ->orderBy('model')
+            ->get();
+
+        return CarMinlistResource::collection($cars);
     }
 
     public function store(StoreCarRequest $request, CarService $carService): mixed

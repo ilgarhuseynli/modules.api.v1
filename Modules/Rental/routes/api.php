@@ -21,6 +21,7 @@ Route::group(['middleware' => ['auth:sanctum', 'auth.gates']], function () {
         Route::apiResource('badges', BadgeController::class);
 
         // Cars
+        Route::post('cars/minlist', [CarController::class, 'minlist']);
         Route::post('cars/{car}/fileupload', [CarController::class, 'fileupload']);
         Route::post('cars/{car}/filedelete', [CarController::class, 'filedelete']);
         Route::apiResource('cars', CarController::class);
