@@ -24,7 +24,6 @@ class StoreBookingRequest extends FormRequest
             'dropoff_location_id' => ['nullable', 'integer', 'exists:rental_locations,id'],
             'pickup_date' => ['required', 'date'],
             'dropoff_date' => ['required', 'date', 'after:pickup_date'],
-            'days' => ['required', 'integer', 'min:1'],
             'discount' => ['nullable', 'numeric', 'min:0'],
             'deposit' => ['nullable', 'numeric', 'min:0'],
             'note' => ['nullable', 'string'],

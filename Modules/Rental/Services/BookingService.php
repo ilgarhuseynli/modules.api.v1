@@ -2,6 +2,7 @@
 
 namespace Modules\Rental\Services;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Modules\Rental\Enums\PriceTier;
 use Modules\Rental\Models\Booking;
@@ -15,7 +16,11 @@ class BookingService
     {
         return DB::transaction(function () use ($data) {
             $car = Car::findOrFail($data['car_id']);
-            $days = $data['days'];
+
+            $pickupDate = Carbon::parse($data['pickup_date']);
+            $dropoffDate = Carbon::parse($data['dropoff_date']);
+            $days = max(1, $pickupDate->diffInDays($dropoffDate));
+
             $pricePerDay = $car->getPriceForDays($days);
             $priceTier = $this->determinePriceTier($days);
             $basePrice = bcmul($pricePerDay, (string) $days, 2);
@@ -24,7 +29,7 @@ class BookingService
             $extraSnapshots = [];
 
             if (! empty($data['extra_ids'])) {
-                [$extrasTotal, $extraSnapshots] = $this->calculateExtras($data['extra_ids'], $car, $days);
+                [$extrasTotal, $extraSnapshots] = $this->calculateExtras($data['extra_ids'], $days);
             }
 
             $locationsTotal = $this->calculateLocationsTotal(
@@ -71,14 +76,64 @@ class BookingService
     public function update(Booking $booking, array $data): Booking
     {
         return DB::transaction(function () use ($booking, $data) {
+            $carChanged = isset($data['car_id']) && (int) $data['car_id'] !== $booking->car_id;
+            $carId = $data['car_id'] ?? $booking->car_id;
+
+            $pickupDate = Carbon::parse($data['pickup_date'] ?? $booking->pickup_date);
+            $dropoffDate = Carbon::parse($data['dropoff_date'] ?? $booking->dropoff_date);
+            $days = max(1, $pickupDate->diffInDays($dropoffDate));
+
+            $priceTier = $this->determinePriceTier($days);
+
+            $car = Car::findOrFail($carId);
+            
+            if ($carChanged) {
+                $pricePerDay = $car->getPriceForDays($days);
+            }elseif ($priceTier != $booking->price_tier){
+                $pricePerDay = $car->getPriceForDays($days);
+            } else {
+                $pricePerDay = $booking->price_per_day;
+            }
+
+            $basePrice = bcmul((string) $pricePerDay, (string) $days, 2);
+
+            $extrasTotal = '0.00';
+            $extraSnapshots = [];
+
+            if (array_key_exists('extra_ids', $data)) {
+                $booking->extras()->delete();
+
+                if (! empty($data['extra_ids'])) {
+                    [$extrasTotal, $extraSnapshots] = $this->calculateExtras($data['extra_ids'], $days);
+                }
+            } else {
+                $extrasTotal = $booking->extras_total;
+            }
+
+            $locationsTotal = $this->calculateLocationsTotal(
+                $data['pickup_location_id'] ?? $booking->pickup_location_id,
+                $data['dropoff_location_id'] ?? $booking->dropoff_location_id,
+            );
+
+            $discount = $data['discount'] ?? $booking->discount;
+            $totalPrice = bcsub(bcadd(bcadd($basePrice, $extrasTotal, 2), $locationsTotal, 2), $discount, 2);
+
             $booking->update([
+                'car_id' => $carId,
                 'customer_name' => $data['customer_name'] ?? $booking->customer_name,
                 'customer_phone' => $data['customer_phone'] ?? $booking->customer_phone,
                 'pickup_location_id' => $data['pickup_location_id'] ?? $booking->pickup_location_id,
                 'dropoff_location_id' => $data['dropoff_location_id'] ?? $booking->dropoff_location_id,
                 'pickup_date' => $data['pickup_date'] ?? $booking->pickup_date,
                 'dropoff_date' => $data['dropoff_date'] ?? $booking->dropoff_date,
-                'discount' => $data['discount'] ?? $booking->discount,
+                'days' => $days,
+                'price_tier' => $priceTier,
+                'price_per_day' => $pricePerDay,
+                'base_price' => $basePrice,
+                'extras_total' => $extrasTotal,
+                'locations_total' => $locationsTotal,
+                'discount' => $discount,
+                'total_price' => $totalPrice,
                 'deposit' => $data['deposit'] ?? $booking->deposit,
                 'note' => $data['note'] ?? $booking->note,
                 'coupon_code' => $data['coupon_code'] ?? $booking->coupon_code,
@@ -86,6 +141,10 @@ class BookingService
                 'payment_status' => $data['payment_status'] ?? $booking->payment_status,
                 'paid_amount' => $data['paid_amount'] ?? $booking->paid_amount,
             ]);
+
+            foreach ($extraSnapshots as $snapshot) {
+                $booking->extras()->create($snapshot);
+            }
 
             return $booking->load('car', 'extras', 'pickupLocation', 'dropoffLocation', 'customer');
         });
@@ -127,14 +186,11 @@ class BookingService
     }
 
     /**
-     * Calculate extras total and build snapshot records.
-     *
      * @return array{0: string, 1: array}
      */
-    private function calculateExtras(array $extraIds, Car $car, int $days): array
+    private function calculateExtras(array $extraIds, int $days): array
     {
         $extras = Extra::with('translations')->whereIn('id', $extraIds)->get();
-        $carExtras = $car->extras->keyBy('id');
 
         $total = '0.00';
         $snapshots = [];
@@ -142,17 +198,6 @@ class BookingService
         foreach ($extras as $extra) {
             $price = $extra->price;
             $priceType = $extra->price_type;
-
-            // Use car-specific override if available
-            if ($carExtras->has($extra->id)) {
-                $pivot = $carExtras->get($extra->id)->pivot;
-                if ($pivot->price !== null) {
-                    $price = $pivot->price;
-                }
-                if ($pivot->price_type !== null) {
-                    $priceType = $pivot->price_type;
-                }
-            }
 
             $extraTotal = $priceType === \Modules\Rental\Enums\PriceType::PER_DAY
                 ? bcmul((string) $price, (string) $days, 2)

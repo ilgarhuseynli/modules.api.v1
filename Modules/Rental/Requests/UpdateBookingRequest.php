@@ -16,6 +16,7 @@ class UpdateBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'car_id' => ['nullable', 'integer', 'exists:rental_cars,id'],
             'customer_name' => ['nullable', 'string', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:50'],
             'pickup_location_id' => ['nullable', 'integer', 'exists:rental_locations,id'],
@@ -29,6 +30,9 @@ class UpdateBookingRequest extends FormRequest
             'status' => ['nullable', 'integer', 'in:'.implode(',', BookingStatus::getValues())],
             'payment_status' => ['nullable', 'integer', 'in:'.implode(',', PaymentStatus::getValues())],
             'paid_amount' => ['nullable', 'numeric', 'min:0'],
+
+            'extra_ids' => ['nullable', 'array'],
+            'extra_ids.*' => ['integer', 'exists:rental_extras,id'],
         ];
     }
 }
