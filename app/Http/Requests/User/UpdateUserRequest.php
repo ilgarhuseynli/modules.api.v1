@@ -28,6 +28,7 @@ class UpdateUserRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
             'is_company' => ['boolean'],
+            'role_id' => ['nullable', 'integer', 'exists:roles,id'],
             'administrator_level' => ['nullable', 'integer', 'in:'.implode(',', AdminstrationLevel::getValues())],
             'send_notification' => ['boolean'],
             'gender' => ['nullable', 'in:'.implode(',', UserGender::getValues())],

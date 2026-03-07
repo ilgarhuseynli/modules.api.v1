@@ -28,10 +28,10 @@ class UserPolicy
      * check if updated user has higher level than updater
      *
      * @param User $user
-     * @param AdminstrationLevel $level
+     * @param AdminstrationLevel|null $level
      * @return bool
      */
-    protected function hasAdministrationAccess(User $user,AdminstrationLevel $level): bool
+    protected function hasAdministrationAccess(User $user,AdminstrationLevel $level = null): bool
     {
         $authUser = Auth::user();
         if ($level){

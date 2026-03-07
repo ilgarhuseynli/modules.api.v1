@@ -3,6 +3,7 @@
 namespace Modules\Rental\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use Modules\Rental\Enums\PriceType;
 use Modules\Rental\Models\Badge;
 use Modules\Rental\Models\Car;
@@ -36,6 +37,7 @@ class RentalSeeder extends Seeder
                 $category->translations()->create([
                     'locale' => $locale,
                     'name' => $names[$locale],
+                    'slug' => Str::slug($names[$locale]),
                 ]);
             }
 

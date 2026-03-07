@@ -13,7 +13,7 @@ class UserResource extends JsonResource
         $avatar = FileService::getResource($this->avatar);
 
         $formatedPhones = [];
-        foreach ((array)$this->phones as $phone) {
+        foreach ((array) $this->phones as $phone) {
             $formatedPhones[] = [
                 'number' => $phone,
                 'is_primary' => $phone == $this->phone,
@@ -27,12 +27,16 @@ class UserResource extends JsonResource
             'keyword' => $this->keyword,
             'name' => $this->name,
             'birth_date' => $this->birth_date,
-            'address' => $this->address ? : null,
+            'address' => $this->address ?: null,
             'address_list' => $this->addresses ?? [],
             'image' => $avatar['url'] ?? '',
             'avatar' => $avatar,
             'is_company' => $this->is_company,
+            'gender' => $this->gender?->value,
+            'send_notification' => $this->send_notification,
+            'role_id' => $this->role_id,
             'role' => $this->role,
+            'administrator_level' => $this->administrator_level?->value,
             'phone' => $this->phone,
             'phones' => $formatedPhones,
             'email' => $this->email,
@@ -40,5 +44,4 @@ class UserResource extends JsonResource
             'created_at' => strtotime($this->created_at),
         ];
     }
-
 }
